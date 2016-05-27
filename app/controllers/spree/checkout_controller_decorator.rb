@@ -18,6 +18,7 @@ Spree::CheckoutController.class_eval do
     before_filter :check_registration, :except => [:registration, :update_registration,:payment_ok,:payment_fail]
 
    def payment_ok
+      byebug
       order_id  = params.require(:order_id)
       boleta_id = params.require(:boleta_id)
       @order    = Spree::Order.find(order_id)
@@ -34,6 +35,7 @@ Spree::CheckoutController.class_eval do
    end
 
    def payment_fail
+      byebug
       order_id  = params.require(:order_id)
       boleta_id = params.require(:boleta_id)
       @order    = Spree::Order.find(order_id)
@@ -65,7 +67,8 @@ Spree::CheckoutController.class_eval do
           boleta   = info['_id']
           url_ok   = CGI.escape('http://localhost:3000/store/webpay_ok?order_id='+@order.id.to_s+'&boleta_id='+boleta.to_s)
           url_fail = CGI.escape('http://localhost:3000/store/webpay_fail?order_id='+@order.id.to_s+'&boleta_id='+boleta.to_s)
-          redirect_to('http://localhost:5000/store/check_webpay?callbackUrl='+url_ok.to_s+'&cancelUrl='+url_fail.to_s) && return
+          redirect_to('https://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+url_ok.to_s+'&cancelUrl='+url_fail.to_s) && return
+          #http://localhost:5000/store/check_webpay
         else
           redirect_to checkout_state_path(@order.state)
         end
