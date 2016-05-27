@@ -37,8 +37,8 @@ test:
   #database: db/test.sqlite3
 
 production:
-  <<: *default
-  database: ti-08
+  #<<: *default
+  #database: ti-08
   #database: db/production.sqlite3
   adapter: postgresql
   pool: 5
