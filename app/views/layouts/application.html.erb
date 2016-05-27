@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TI - 08</title>
+  <style> .glyphicon-thumbs-up { cursor:pointer } </style>
+  <%= stylesheet_link_tag    'application', media: 'all' %>
+  <%= javascript_include_tag 'application' %>
+  <%= csrf_meta_tags %>
+</head>
+  <body ng-app="angularRails" ng-controller="HomeCtrl">
+    <div class="container-fluid">
+        <div ng-include="'nav/_nav.html'"></div>
+           <ui-view></ui-view>
+    </div>
+  </body>
+  </html>
