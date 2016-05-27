@@ -72,5 +72,4 @@ source "https://rails-assets.org" do
   gem "rails-assets-angular-devise"
 end
 
-ruby "2.3.1p112"
 
