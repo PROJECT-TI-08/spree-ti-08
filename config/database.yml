@@ -38,7 +38,8 @@ test:
 
 production:
   #<<: *default
-  #database: ti-08
+  database: ti-08
+  host: localhost
   #database: db/production.sqlite3
   adapter: postgresql
   pool: 5
