@@ -67,7 +67,8 @@ Spree::CheckoutController.class_eval do
           boleta   = info['_id']
           url_ok   = CGI.escape('https://spree-ti-08.herokuapp.com/store/webpay_ok?order_id='+@order.id.to_s+'&boleta_id='+boleta.to_s)
           url_fail = CGI.escape('https://spree-ti-08.herokuapp.com/store/webpay_fail?order_id='+@order.id.to_s+'&boleta_id='+boleta.to_s)
-          redirect_to('https://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+url_ok.to_s+'&cancelUrl='+url_fail.to_s) && return
+          redirect_to('https://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+url_ok.to_s+'&cancelUrl='+url_fail.to_s+
+            '&boletaId='+boleta.to_s) && return
           #http://localhost:5000/store/check_webpay
         else
           redirect_to checkout_state_path(@order.state)
