@@ -18,7 +18,7 @@ Spree::CheckoutController.class_eval do
     before_filter :check_registration, :except => [:registration, :update_registration,:payment_ok,:payment_fail]
 
    def payment_ok
-      byebug
+      #byebug
       order_id  = params.require(:order_id)
       boleta_id = params.require(:boleta_id)
       @order    = Spree::Order.find(order_id)
