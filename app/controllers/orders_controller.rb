@@ -160,55 +160,16 @@ class OrdersController < ApplicationController
               ##########################################
               request_inv = InvoicesController.new.emitir_factura(oc_number)
               logger.debug('emitir factura_ order')
-	      logger.debug(request_inv[:result])
-	      if request_inv[:status]
+      	      logger.debug(request_inv[:result])
+      	      if request_inv[:status]
                 result = request_inv[:result]
                 factura_obj = Factura.create!({
                 :_id   => result['_id'], 
                 :bruto => result['bruto'],
                 :iva   => result['iva'], 
                 :total => result['total'],
-		:order_id => order_obj['id'] })
-               
-                stock_aux = StoresController.new
-                almacen_despacho =  Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,true,false).first
-                   j = 0
-                   Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,false).each do |fabrica|
-                      list_products = stock_aux.get_stock(oc_order['sku'],fabrica['_id'])
-                      if list_products[:status]
-                        #new_list = list_products[:result].select{|aux| aux['despachado'] == false}
-                        list_products[:result].each do |item|
-                          if j < cantidad
-                            request_mov = stock_aux.mover_stock(item['_id'],almacen_despacho['_id'])
-                            response_mov = request_mov.run
-                            if response_mov.success? 
-                                ######## Actualizamos nuestro stock local ###############
-                                fabrica['usedSpace']  = fabrica['usedSpace'].to_i - 1
-                                fabrica['totalSpace'] = fabrica['totalSpace'].to_i + 1
-                                fabrica.save
-                                almacen_despacho['usedSpace']  =  almacen_despacho['usedSpace'].to_i + 1
-                                almacen_despacho['totalSpace'] =  almacen_despacho['totalSpace'].to_i - 1
-                                almacen_despacho.save
-                                #########################################################   
-                                result_mov_prod = JSON.parse(response_mov.body)     
-                                request_despacho = stock_aux.despachar_stock(result_mov_prod['_id'],'n.a',oc_precio.to_i,oc_number)
-                                response_despacho = request_despacho.run
-                                if response_despacho.success?
-                                  ######## Actualizamos nuestro stock local ###############
-                                  almacen_despacho['usedSpace']  =  almacen_despacho['usedSpace'].to_i - 1
-                                  almacen_despacho['totalSpace'] =  almacen_despacho['totalSpace'].to_i + 1
-                                  almacen_despacho.save
-                                  #########################################################
-                                end 
-                            end
-                          else
-                            break
-                          end
-                          j = j + 1
-                        end
-                      end
-                   end
-
+		            :order_id => order_obj['id'] })      
+                despachar_process(oc_order['sku'],oc_precio,oc_number,cantidad)
                 orders_saved[:status] = 1     
               end  
             end       
@@ -223,6 +184,35 @@ class OrdersController < ApplicationController
       Applog.debug(ex.message,'process_order')
     end 
  end
+
+ def despachar_process(sku,oc_precio,oc_number,cantidad,direccion = 'n.a')
+  stock_aux = StoresController.new
+  almacen_despacho =  Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,true,false).first
+     j = 0
+     Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,false).each do |fabrica|
+        list_products = stock_aux.get_stock(sku,fabrica['_id'])
+        if list_products[:status]
+          #new_list = list_products[:result].select{|aux| aux['despachado'] == false}
+          list_products[:result].each do |item|
+            if j < cantidad
+              request_mov = stock_aux.mover_stock(item['_id'],almacen_despacho['_id'])
+              response_mov = request_mov.run
+              if response_mov.success?  
+                  result_mov_prod = JSON.parse(response_mov.body)     
+                  request_despacho = stock_aux.despachar_stock(result_mov_prod['_id'],direccion,oc_precio.to_i,oc_number)
+                  response_despacho = request_despacho.run
+                  if response_despacho.success?
+                    logger.debug('Producto despachado correctamente')
+                  end 
+              end
+            else
+              break
+            end
+            j = j + 1
+          end
+        end
+     end    
+  end
 
   private
 

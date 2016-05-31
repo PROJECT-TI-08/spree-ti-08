@@ -117,25 +117,30 @@ def mover_productos_pulmon()
         list_products.push(item)
      end
    end  
-     j = 0
-     # Recorremos los almacenes centrales y vamos moviendo los productos que hay
-     # en el almacen de recepción. Se van llenando en orden los almacenes centrales.
-     Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,true).each do |fabrica|
-        cantidad_aux = fabrica['totalSpace'].to_i - fabrica['usedSpace'].to_i
-            list_products.shuffle.each do |item|
-            if j < cantidad_aux
-              request_mov  = stock_aux.mover_stock(item['_id'],fabrica['_id'])
-              response_mov = request_mov.run
-              if response_mov.success?
-              	logger.debug("...Productos movidos correctamente")
+    j = 0 
+  	result_almacenes = StoresController.new.get_almacenes
+    if(result_almacenes[:status])
+       # Recorremos los almacenes centrales y vamos moviendo los productos que hay
+       # en el almacen de recepción. Se van llenando en orden los almacenes centrales.
+       result_almacenes[:result].each() do |fabrica|
+           if(fabrica['pulmon'] == false && fabrica['despacho'] == false && fabrica['recepcion'] == false)
+              cantidad_aux = fabrica['totalSpace'].to_i - fabrica['usedSpace'].to_i
+              list_products.shuffle.each do |item|
+                  if j < cantidad_aux
+                    request_mov  = stock_aux.mover_stock(item['_id'],fabrica['_id'])
+                    response_mov = request_mov.run
+                    if response_mov.success?
+                          logger.debug("...Producto movido correctamente (mover_productos_pulmon)")
+                    end
+                    j = j + 1
+                  else
+                    j = 0 
+                    break
+                  end
               end
-              j = j + 1
-            else
-              j = 0
-              break
-            end
-        end
-     end
+           end
+       end
+    end
     logger.debug("...Fin mover productos")
    return  {:status => true}
   rescue => ex
@@ -148,42 +153,40 @@ end
 # a los almacenes centrales
 def mover_productos()
   begin
-   logger.debug("...Inicio mover productos")
-   stock_aux = StoresController.new
+    logger.debug("...Inicio mover productos")
+    stock_aux = StoresController.new
 
-   almacen_recepcion = Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,true).first
-   Product.all.each do |producto|
-     sku_aux = producto[:sku]
-     list_products     = stock_aux.get_stock(sku_aux,almacen_recepcion['_id'])
-     j = 0
-     # Recorremos los almacenes centrales y vamos moviendo los productos que hay
-     # en el almacen de recepción. Se van llenando en orden los almacenes centrales.
-     Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,false).each do |fabrica|
-        cantidad_aux = fabrica['totalSpace'].to_i - fabrica['usedSpace'].to_i
-        if list_products[:status]
-            list_products[:result].each do |item|
-            if j < cantidad_aux
-              request_mov  = stock_aux.mover_stock(item['_id'],fabrica['_id'])
-              response_mov = request_mov.run
-              if response_mov.success?
-                 ######## Actualizamos nuestro stock local ###############
-                 fabrica['usedSpace']  = fabrica['usedSpace'].to_i + 1
-                 fabrica['totalSpace'] = fabrica['totalSpace'].to_i - 1
-                 fabrica.save
-                 almacen_recepcion['usedSpace']  =  almacen_recepcion['usedSpace'].to_i - 1
-                 almacen_recepcion['totalSpace'] =  almacen_recepcion['totalSpace'].to_i + 1
-                 almacen_recepcion.save
-                 #########################################################
+    almacen_recepcion = Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,true).first
+    Product.all.each do |producto|
+        sku_aux = producto[:sku]
+        list_products     = stock_aux.get_stock(sku_aux,almacen_recepcion['_id'])
+        j = 0
+        result_almacenes = StoresController.new.get_almacenes
+        if(result_almacenes[:status])
+          # Recorremos los almacenes centrales y vamos moviendo los productos que hay
+          # en el almacen de recepción. Se van llenando en orden los almacenes centrales.
+          result_almacenes[:result].each() do |fabrica|
+              if(fabrica['pulmon'] == false && fabrica['despacho'] == false && fabrica['recepcion'] == false)
+                  cantidad_aux = fabrica['totalSpace'].to_i - fabrica['usedSpace'].to_i
+                  if list_products[:status]
+                      list_products[:result].each do |item|
+                          if j < cantidad_aux
+                            request_mov  = stock_aux.mover_stock(item['_id'],fabrica['_id'])
+                            response_mov = request_mov.run
+                            if response_mov.success?
+                                  logger.debug("...Producto movido correctamente (mover_productos)")
+                            end
+                            j = j + 1
+                          else
+                            j = 0
+                            break
+                          end
+                      end
+                  end
               end
-              j = j + 1
-            else
-              j = 0
-              break
-            end
           end
         end
-     end
-   end
+    end
     logger.debug("...Fin mover productos")
    return  {:status => true}
   rescue => ex
@@ -246,7 +249,7 @@ def recibir_oc
                 :bruto  => result['bruto'].to_f,
                 :iva    => result['iva'].to_f, 
                 :total  => result['total'].to_f,
-		:order_id => order_obj['id'] })
+		            :order_id => order_obj['id'] })
              
                 enviar_factura(result)
             end  
@@ -379,23 +382,11 @@ def mover_despachar(idfactura)
             request_mov  = stock_aux.mover_stock(item['_id'],almacen_despacho['_id'])
             response_mov = request_mov.run 
             if response_mov.success?  
-               ######## Actualizamos nuestro stock local ###############
-               fabrica['usedSpace']  = fabrica['usedSpace'].to_i - 1
-               fabrica['totalSpace'] = fabrica['totalSpace'].to_i + 1
-               fabrica.save
-               almacen_despacho['usedSpace']  =  almacen_despacho['usedSpace'].to_i + 1
-               almacen_despacho['totalSpace'] =  almacen_despacho['totalSpace'].to_i - 1
-               almacen_despacho.save
-               #########################################################
                result_mov_prod = JSON.parse(response_mov.body)                        
                request_stock = stock_aux.mover_stock_bodega(result_mov_prod['_id'],almacen_cliente,oc[0]['_id'],precio)
                response_stock = request_stock.run
                if response_stock.success?
-                  ######## Actualizamos nuestro stock local ###############
-                  almacen_despacho['usedSpace']  =  almacen_despacho['usedSpace'].to_i - 1
-                  almacen_despacho['totalSpace'] =  almacen_despacho['totalSpace'].to_i + 1
-                  almacen_despacho.save
-                  #########################################################
+                  logger.debug("...Product movido correctamente (mover_despachar)")
                   result_stock = JSON.parse(response_stock.body)
                end
             end

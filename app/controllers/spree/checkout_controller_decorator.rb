@@ -27,6 +27,14 @@ Spree::CheckoutController.class_eval do
         info = response[:result]
         flash.notice = 'La orden fue creada correctamente, el numero de boleta generado fue #'+ info[0]['_id'].to_s+
         ', el monto bruto '+info[0]['bruto'].to_s+', el iva '+info[0]['iva'].to_s+' y el total '+info[0]['total'].to_s
+        Spawnling.new do
+          address_info = @order.ship_address()
+          address = address_info[:address1] +' '+address_info[:address2] + ' ' + address_info[:city]
+          @order.line_items().each do |item|
+              sku = item.variant.sku
+              response_order = OrdersController.new.despachar_process(sku,item.price.to_i,boleta_id,item.quantity,address)
+          end
+        end
       end
       @current_order = nil
       flash['order_completed'] = true
@@ -35,7 +43,7 @@ Spree::CheckoutController.class_eval do
    end
 
    def payment_fail
-      #byebug
+      byebug
       order_id  = params.require(:order_id)
       boleta_id = params.require(:boleta_id)
       @order    = Spree::Order.find(order_id)
@@ -65,10 +73,11 @@ Spree::CheckoutController.class_eval do
           result   = InvoicesController.new.crear_boleta('323232323','571262b8a980ba030058ab56',@order.total)  
           info     = result[:result]
           boleta   = info['_id']
-          url_ok   = CGI.escape('https://spree-ti-08.herokuapp.com/store/webpay_ok?order_id='+@order.id.to_s+'&boleta_id='+boleta.to_s)
-          url_fail = CGI.escape('https://spree-ti-08.herokuapp.com/store/webpay_fail?order_id='+@order.id.to_s+'&boleta_id='+boleta.to_s)
+          url_ok   = CGI.escape('http://localhost:3000/store/webpay_ok?order_id='+@order.id.to_s+'&boleta_id='+boleta.to_s)
+          url_fail = CGI.escape('http://localhost:3000/store/webpay_fail?order_id='+@order.id.to_s+'&boleta_id='+boleta.to_s)
           redirect_to('https://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+url_ok.to_s+'&cancelUrl='+url_fail.to_s+
             '&boletaId='+boleta.to_s) && return
+          #https://spree-ti-08.herokuapp.com
           #http://localhost:5000/store/check_webpay
         else
           redirect_to checkout_state_path(@order.state)
