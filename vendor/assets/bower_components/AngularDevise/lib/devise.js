@@ -42,11 +42,11 @@
      * The default paths.
      */
     var paths = {
-        login: '/users/sign_in.json',
-        logout: '/users/sign_out.json',
-        register: '/users.json',
-        sendResetPasswordInstructions: '/users/password.json',
-        resetPassword: '/users/password.json'
+        login: '/store/user/spree_user/sign_in.js',
+        logout: '/store/user/spree_user/sign_out.js',
+        register: '/store/user/spree_user.js',
+        sendResetPasswordInstructions: '/store/user/spree_user/password.js',
+        resetPassword: '/store/user/spree_user/password.js'
     };
 
     /**

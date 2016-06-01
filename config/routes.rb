@@ -10,21 +10,19 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   Spree::Core::Engine.routes.draw do
-    get '/webpay_ok',    to: 'checkout#payment_ok'
-    get '/webpay_fail',  to: 'checkout#payment_fail'
-    get '/check_webpay', to: 'checkout#check_webpay'
+    get '/webpay_ok',        to: 'orders#payment_ok'
+    get '/webpay_fail',      to: 'orders#payment_fail'
+    get '/check_webpay',     to: 'orders#check_webpay'
+    get '/response_payment', to: 'orders#response_payment', as: :response_payment
   end
 
 
   #devise_for :users
   root to: 'application#angular'    
-
   resources :orders, only: [:index, :show] do
   end
-
   resources :stores, only: [:index, :show] do
   end
-
   resources :products, only: [:index, :show] do
   end
   
