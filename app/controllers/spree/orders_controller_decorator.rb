@@ -10,7 +10,7 @@ Spree::OrdersController.class_eval do
       options   = params[:options] || {}
       direccion = params[:order_direccion] || 'N.A'
 
-      if quantity > real_qty 
+      if quantity > real_qty
         error = 'Lo sentimos, la cantidad solicitada es mayor a lo que actualmente tenemos en stock'
       else
         # 2,147,483,647 is crazy. See issue #2695.
@@ -30,7 +30,11 @@ Spree::OrdersController.class_eval do
         redirect_back_or_default(spree.root_path)
       else
         respond_with(order) do |format|
+<<<<<<< HEAD
           result   = InvoicesController.new.crear_boleta('571262b8a980ba030058ab57','572aac69bdb6d403005fb049',order.total)  
+=======
+          result   = InvoicesController.new.crear_boleta('571262b8a980ba030058ab57','572aac69bdb6d403005fb049',order.total)
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae
           info     = result[:result]
           boleta   = info['_id']
           url_ok   = CGI.escape('http://integra8.ing.puc.cl/store/webpay_ok?order_id='+order.id.to_s+'&boleta_id='+boleta.to_s+
@@ -43,7 +47,12 @@ Spree::OrdersController.class_eval do
       end
     end
 
+<<<<<<< HEAD
     def payment_ok
+=======
+
+  def payment_ok
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae
       order_id  = params.require(:order_id)
       boleta_id = params.require(:boleta_id)
       sku       = params.require(:sku)
@@ -52,8 +61,13 @@ Spree::OrdersController.class_eval do
       @order = current_order
       response  = InvoicesController.new.obtener_factura(boleta_id)
       if(response[:status])
+<<<<<<< HEAD
 	info = response[:result][0] 
      
+=======
+        info = response[:result][0]
+
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae
         flash.notice = 'La orden fue creada correctamente.'
         Spawnling.new do
           #address_info = order_aux.ship_address()
@@ -61,6 +75,7 @@ Spree::OrdersController.class_eval do
           #if address_info
           #  address = address_info[:address1] +' '+address_info[:address2] + ' ' + address_info[:city]
           #end
+<<<<<<< HEAD
 	  quantity = 0
 	  price    = 0
           @order.line_items().each do |item|
@@ -70,6 +85,17 @@ Spree::OrdersController.class_eval do
               response_order = OrdersController.new.despachar_process(sku_aux,price.to_i,boleta_id,quantity,direccion)
               Applog.debug(sku.to_s + ' ' +boleta_id.to_s,'despacho_correcto') 
 	 end
+=======
+          quantity = 0
+          price    = 0
+          @order.line_items().each do |item|
+              sku_aux = item.variant.sku
+              quantity = item.quantity
+              price    = item.price
+              response_order = OrdersController.new.despachar_process(sku_aux,price.to_i,boleta_id,quantity,direccion)
+              Applog.debug(sku.to_s + ' ' +boleta_id.to_s,'despacho_correcto')
+         end
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae
           order_obj = Order.create!({
               :_id                => info['_id'],
               :canal              => 'b2c',
@@ -83,9 +109,15 @@ Spree::OrdersController.class_eval do
               :fechaDespachos     => [],
               :estado             => info['estado'],
               :tipo               => 1 })
+<<<<<<< HEAD
 
         end
       end
+=======
+        end
+      end
+
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae
       if @order = current_order
         @order.empty!
       end
@@ -98,6 +130,10 @@ Spree::OrdersController.class_eval do
       end
    end
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae
    def payment_fail
       order_id  = params.require(:order_id)
       boleta_id = params.require(:boleta_id)
@@ -122,4 +158,8 @@ Spree::OrdersController.class_eval do
       end
    end
 
+<<<<<<< HEAD
   end
+=======
+ end
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae

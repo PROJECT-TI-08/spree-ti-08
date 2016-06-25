@@ -3,7 +3,15 @@ app.config([
 '$stateProvider',
 '$urlRouterProvider',
 'AuthInterceptProvider',
-function($stateProvider, $urlRouterProvider,AuthInterceptProvider) {
+'AuthProvider',
+function($stateProvider, $urlRouterProvider,AuthInterceptProvider,AuthProvider) {
+
+  AuthProvider.resourceName('spree_user');
+  AuthProvider.loginPath("/store/user/spree_user/sign_in.js");
+  AuthProvider.logoutPath("/store/user/spree_user/sign_out.js");
+  AuthProvider.registerPath("/store/user/spree_user.js");
+  AuthProvider.resetPasswordPath("/store/user/spree_user/password.js");
+  AuthProvider.sendResetPasswordInstructionsPath("/store/user/spree_user/password.js");
 
   AuthInterceptProvider.interceptAuth(true);
 

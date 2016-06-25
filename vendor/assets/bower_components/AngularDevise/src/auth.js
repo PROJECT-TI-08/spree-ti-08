@@ -3,11 +3,11 @@ devise.provider('Auth', function AuthProvider() {
      * The default paths.
      */
     var paths = {
-        login: '/users/sign_in.json',
-        logout: '/users/sign_out.json',
-        register: '/users.json',
-        sendResetPasswordInstructions: '/users/password.json',
-        resetPassword: '/users/password.json'
+        login: '/user/spree_user/sign_in.json',
+        logout: '/user/spree_user/sign_out.json',
+        register: '/user/spree_user.json',
+        sendResetPasswordInstructions: '/user/spree_user/password.json',
+        resetPassword: '/user/spree_user/password.json'
     };
 
     /**

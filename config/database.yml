@@ -37,7 +37,7 @@ test:
   #database: db/test.sqlite3
 
 production:
-  #<<: *default
+  <<: *default
   database: ti-08
   host: localhost
   #database: db/production.sqlite3

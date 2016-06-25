@@ -51,6 +51,7 @@
         <% if @product.can_supply? %>
           <div class="add-to-cart">
           <%= hidden_field_tag "real_qty", @qty %>
+          <%= hidden_field_tag "sku", @product.sku %>
           <% if exist_stock_product(@product) %>
             <br />
             <div class="input-group">
@@ -61,6 +62,13 @@
                 <% end %>
               </span>
             </div>
+            <br />
+            <div class="input-group">
+              <p class="form-group">
+                  <%= f.label :direccion, 'Dirección' %>
+                  <%= f.text_field :direccion, :class => 'form-control', :value => 'Av. Vickuña, San Joaquin' %>
+               </p>
+             </div>
           <% else %>
              <div class="panel panel-warning">
                 <div class="panel-heading">Lo sentimos</div>

@@ -6,6 +6,7 @@ class ApiController < ApplicationController
 ###############################################
 
 def webhook
+<<<<<<< HEAD
 
 data_json = JSON.parse request.body.read
 
@@ -13,6 +14,22 @@ Applog.debug(data_json,'amqp message')
 
 render :nothing => true, :status => 503
 
+=======
+  begin
+    data_json = JSON.parse request.body.read
+    #Applog.debug(data_json,'amqp message')
+    promotion_obj = Promotion.create!({
+             :sku       => promotion_obj['sku'].to_s, 
+             :precio    => promotion_obj['precio'].to_i,
+             :inicio    => promotion_obj['inicio'], 
+             :fin       => promotion_obj['fin'],
+             :publicar  => promotion_obj['publicar'],
+             :codigo    => promotion_obj['codigo'].to_s })
+    render :nothing => true, :status => 200
+  rescue => ex
+    Applog.debug(ex.message,'webhook')
+  end
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae
 end
 
 # Metodo para notificar a un proveedor un pago
@@ -76,7 +93,11 @@ def validar_factura
              :iva    => result_inv[0]['iva'].to_f, 
              :total  => result_inv[0]['total'].to_f,
              :idtrx    => result_bank['_id'].to_s,
+<<<<<<< HEAD
 	     :order_id => order_obj['id'].to_i })
+=======
+	           :order_id => order_obj['id'].to_i })
+>>>>>>> d06ae1981bf95e389d79b682e2be585796dfb2ae
             
           end
           enviar_transaccion(result_bank,idfactura)
