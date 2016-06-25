@@ -55,7 +55,7 @@ Spree::OrdersController.class_eval do
 	info = response[:result][0] 
      
         flash.notice = 'La orden fue creada correctamente.'
-        Spawnling.new do
+        #Spawnling.new do
           #address_info = order_aux.ship_address()
           #address = 'N.A'
           #if address_info
@@ -68,8 +68,8 @@ Spree::OrdersController.class_eval do
 	      quantity = item.quantity
 	      price    = item.price
               response_order = OrdersController.new.despachar_process(sku_aux,price.to_i,boleta_id,quantity,direccion)
-              Applog.debug(sku.to_s + ' ' +boleta_id.to_s,'despacho_correcto') 
-	 end
+		logger.debug('orden_despacho_ok')
+          end
           order_obj = Order.create!({
               :_id                => info['_id'],
               :canal              => 'b2c',
@@ -82,9 +82,9 @@ Spree::OrdersController.class_eval do
               :fechaEntrega       => info['created_at'],
               :fechaDespachos     => [],
               :estado             => info['estado'],
-              :tipo               => 1 })
+              :tipo               => 3 })
 
-        end
+        #end
       end
       if @order = current_order
         @order.empty!

@@ -5,6 +5,16 @@ class ApiController < ApplicationController
 ################### CLIENTE ###################
 ###############################################
 
+def webhook
+
+data_json = JSON.parse request.body.read
+
+Applog.debug(data_json,'amqp message')
+
+render :nothing => true, :status => 503
+
+end
+
 # Metodo para notificar a un proveedor un pago
 def enviar_transaccion(trx,idfactura)
  begin
@@ -57,14 +67,16 @@ def validar_factura
              factura.idtrx = result_bank['_id']
              factura.save
           else
+	     logger.debug(result_bank);
+             logger.debug(result_inv);  
              order_obj = Order.where('_id = ?', result_inv[0]['oc'].to_s).first
              factura_obj = Factura.create!({
-             :_id    => result_inv['_id'].to_s, 
-             :bruto  => result_inv['bruto'].to_f,
-             :iva    => result_inv['iva'].to_f, 
-             :total  => result_inv['total'].to_f,
+             :_id    => result_inv[0]['_id'].to_s, 
+             :bruto  => result_inv[0]['bruto'].to_f,
+             :iva    => result_inv[0]['iva'].to_f, 
+             :total  => result_inv[0]['total'].to_f,
              :idtrx    => result_bank['_id'].to_s,
-	     :order_id => order_obj['id'] })
+	     :order_id => order_obj['id'].to_i })
             
           end
           enviar_transaccion(result_bank,idfactura)
@@ -238,7 +250,7 @@ def recibir_oc
               :fechaEntrega       => oc_order['fechaEntrega'],
               :fechaDespachos     => oc_order['fechaDespachos'], 
               :estado             => oc_order['estado'],
-              :tipo               => 2
+              :tipo               => 1
               })
             response_inv = InvoicesController.new.emitir_factura(id_order)
             if response_inv[:status]

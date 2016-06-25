@@ -9,7 +9,7 @@ class OrdersController < ApplicationController
      result = Array.new
      Order.order(:id).all.each do |item|
       result.push( :id => item['id'], :factura => item.factura, :proveedor => item['proveedor'], :cliente => item['cliente'],
-        :_id => item['_id'], :tipo => item['tipo'],  :sku => item['sku'], :cantidad => item['cantidad'])
+        :_id => item['_id'], :tipo => item['tipo'],  :sku => item['sku'], :cantidad => item['cantidad'], :canal => item['canal'])
       end
     respond_with result
   end
@@ -191,7 +191,7 @@ class OrdersController < ApplicationController
      j = 0
      Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,false).each do |fabrica|
         list_products = stock_aux.get_stock(sku,fabrica['_id'])
-        if list_products[:status]
+	if list_products[:status]
           #new_list = list_products[:result].select{|aux| aux['despachado'] == false}
           list_products[:result].each do |item|
             if j < cantidad
