@@ -8,7 +8,7 @@ Spree::OrdersController.class_eval do
       real_qty  = params[:real_qty].to_i || 0
       sku       = params[:sku].to_i || 0
       options   = params[:options] || {}
-      direccion = params[:direccion] || ''
+      direccion = params[:order_direccion] || 'N.A'
 
       if quantity > real_qty 
         error = 'Lo sentimos, la cantidad solicitada es mayor a lo que actualmente tenemos en stock'
@@ -47,10 +47,12 @@ Spree::OrdersController.class_eval do
       order_id  = params.require(:order_id)
       boleta_id = params.require(:boleta_id)
       sku       = params.require(:sku)
-      direccion = params.require(:sku)
+      direccion = params.require(:direccion)
       order_aux = Spree::Order.find(order_id)
+      @order = current_order
       response  = InvoicesController.new.obtener_factura(boleta_id)
       if(response[:status])
+        #byebug
         info = response[:result][0]
         flash.notice = 'La orden fue creada correctamente.'
         Spawnling.new do
@@ -59,10 +61,28 @@ Spree::OrdersController.class_eval do
           #if address_info
           #  address = address_info[:address1] +' '+address_info[:address2] + ' ' + address_info[:city]
           #end
-          order_aux.line_items().each do |item|
+          quantity = 0
+          price    = 0
+          @order.line_items().each do |item|
               sku_aux = item.variant.sku
-              response_order = OrdersController.new.despachar_process(sku_aux,item.price.to_i,boleta_id,item.quantity,direccion)
+              quantity = item.quantity
+              price    = item.price
+              response_order = OrdersController.new.despachar_process(sku_aux,price.to_i,boleta_id,quantity,direccion)
           end
+          order_obj = Order.create!({
+              :_id                => info['_id'],
+              :canal              => 'b2c',
+              :proveedor          => info['proveedor'],
+              :cliente            => info['cliente'],
+              :sku                => sku.to_i,
+              :cantidad           => quantity,
+              :cantidadDespachada => quantity,
+              :precioUnitario     => price.to_i,
+              :fechaEntrega       => info['created_at'],
+              :fechaDespachos     => [],
+              :estado             => info['estado'],
+              :tipo               => 1 })
+
         end
       end
       if @order = current_order

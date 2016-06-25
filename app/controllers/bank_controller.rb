@@ -38,4 +38,58 @@ def transferir(monto,origen,destino)
     end
   end
 
+  def obtener_cartola(fechaInicio,fechaFin,cuenta)
+    url = Rails.configuration.bank_api_url + 'cartola'
+    request = Typhoeus::Request.new(
+    url, 
+    method: :post,
+    body: { 
+      fechaInicio: fechaInicio,
+      fechaFin:  fechaFin,
+      id: cuenta
+    },
+    headers: { ContentType: "application/json"})
+    response = request.run
+    if response.success?                 
+       return {:status => true, :result =>  JSON.parse(response.body)}               
+    else
+       return {:status => false}
+    end
+  end
+
+  def obtener_transacciones   
+    fechaInicio = params.require(:fechaInicio) || '2016-04-01'
+    fechaFin    = params.require(:fechaFin)    || '2016-06-01'
+    response = obtener_cartola(fechaInicio.to_datetime.strftime('%Q'),fechaFin.to_datetime.strftime('%Q'),
+      Rails.configuration.bank_account)
+    respond_to do |format|
+      format.json  { render json: {:status => true,:result => response} }
+      format.html  { render json: {:status => true,:result => response} }
+    end
+  end
+
+  def save_saldo  
+    begin
+      response = obtener_cuenta(Rails.configuration.bank_account)
+      logger.debug(response)
+      date     = DateTime.now
+      if(response[:status])
+        logger.debug('AQUIEEEEE')
+        SaldoInfo.create!({
+             :valor    => response[:result][0]['saldo'], 
+             :date   => date})
+      end
+      respond_to do |format|
+        format.json  { render json: {:status => true,:result => response} }
+        format.html  { render json: {:status => true,:result => response} }
+      end
+    rescue => ex
+      logger.debug(ex.message)
+      respond_to do |format|
+        format.json  { render json: {:status => false,:result => ex.message} }
+        format.html  { render json: {:status => false,:result => ex.message} }
+      end
+    end
+  end
+
 end

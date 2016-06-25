@@ -115,7 +115,6 @@ class OrdersController < ApplicationController
   end
 
   def process_order_first_time
-      logger.info('first_time')
       process_order(0)
   end
 

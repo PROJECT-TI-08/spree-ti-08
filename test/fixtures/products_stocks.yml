@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sku: MyString
+  store: MyString
+  qty: 1
+  date: 2016-06-24
+
+two:
+  sku: MyString
+  store: MyString
+  qty: 1
+  date: 2016-06-24

@@ -7,6 +7,7 @@
         <td style="text-align:center"><h4>#</h4></td>
 <td style="text-align:center"><h4>Tipo</h4></td>
         <td style="text-align:center"><h4>OC</h4></td>
+        <td style="text-align:center"><h4>Canal</h4></td>
         <td style="text-align:center"><h4>Proveedor</h4></td>
         <td style="text-align:center"><h4>Cliente</h4></td>
         <td style="text-align:center"><h4>SKU</h4></td>
@@ -22,7 +23,8 @@
     ></span></td>
         <td style="text-align:center" ng-show="order.tipo == 2"><span class="glyphicon glyphicon-check"
     ></span></td>       
- 	<td style="text-align:center">{{order._id}}</td>
+ 	    <td style="text-align:center">{{order._id}}</td>
+        <td style="text-align:center">{{order.canal}}</td>
         <td style="text-align:center">{{order.proveedor}}</td>
         <td style="text-align:center">{{order.cliente}}</td>
         <td style="text-align:center">{{order.sku}}</td>

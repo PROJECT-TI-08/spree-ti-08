@@ -28,6 +28,12 @@ Rails.application.routes.draw do
   
   ############### API ##################
 
+  get 'api/save_saldo'                   => 'bank#save_saldo'
+
+  get 'api/trans'                        => 'bank#obtener_transacciones'
+
+  get 'api/save_products'                => 'products#save_products_stock'
+
   get 'api/oc/recibir/:idoc'             => 'api#recibir_oc'
 
   get 'api/consultar/:sku'               => 'api#consultar_stock'
