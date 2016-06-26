@@ -5,33 +5,40 @@
 
 #crontab -l
 #whenever --update-crontab
-set :environment, "development"
+set :environment, "production"
 #"production"
-set :output, {:error => "#{path}/log/cron_error.log", :standard => "#{path}/log/cron.log"}
+#set :output, {:error => "#{path}/log/cron_error.log", :standard => "#{path}/log/cron.log"}
 
 #set :output, "#{path}/log/cron.log"
 
 #job_type :runner, "{ cd #{@current_path} > /dev/null; } && RAILS_ENV='production' bundle exec rails runner ':task' :output"
-#job_type :runner, "cd #{@path} && RAILS_ENV='production' /home/jddm11/.rvm/wrappers/ruby-2.3.1/bundle exec rails runner ':task' :output"
+job_type :runner, "cd #{@path} && RAILS_ENV='production' /home/administrator/.rvm/wrappers/ruby-2.3.1/bundle exec rails runner ':task' :output"
 
 
- every 12.hours do
-   runner "OrdersController.new.get_orders_by_ftp1"
+ every 30.minutes do
+   runner "OrdersController.new.get_orders_by_ftp"
  end
 
  every 5.minutes do
-   runner "OrdersController.new.process_order_first_time1"
+   runner "OrdersController.new.process_order_first_time"
  end
 
  every 10.minutes do
-   runner "ApiController.new.mover_productos1"
+   runner "ApiController.new.mover_productos"
  end
 
- every 1.hour do
-   runner "OrdersController.new.process_order_second_time1"
+ every 10.minutes do
+   runner "OrdersController.new.process_order_second_time"
  end
 
 every 15.minutes do
-   runner "StoresController.new.abastecer_productos1"
+   runner "StoresController.new.abastecer_productos"
  end
 
+every 12.hours do
+   runner "BankController.new.save_saldo"
+end
+
+every 12.hours do
+   runner 'ProductsController.new.save_products_stock'
+end

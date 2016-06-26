@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   
   ############### API ##################
 
+  post 'api/webhook'			 => 'api#webhook'
+
   get 'api/save_saldo'                   => 'bank#save_saldo'
 
   get 'api/trans'                        => 'bank#obtener_transacciones'

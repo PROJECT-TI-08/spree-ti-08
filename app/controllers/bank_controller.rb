@@ -59,7 +59,7 @@ def transferir(monto,origen,destino)
 
   def obtener_transacciones   
     fechaInicio = params.require(:fechaInicio) || '2016-04-01'
-    fechaFin    = params.require(:fechaFin)    || '2016-06-01'
+    fechaFin    = params.require(:fechaFin)    || '2016-07-01'
     response = obtener_cartola(fechaInicio.to_datetime.strftime('%Q'),fechaFin.to_datetime.strftime('%Q'),
       Rails.configuration.bank_account)
     respond_to do |format|
@@ -74,7 +74,6 @@ def transferir(monto,origen,destino)
       logger.debug(response)
       date     = DateTime.now
       if(response[:status])
-        logger.debug('AQUIEEEEE')
         SaldoInfo.create!({
              :valor    => response[:result][0]['saldo'], 
              :date   => date})

@@ -38,7 +38,7 @@ test:
 
 production:
   <<: *default
-  database: ti-08
+  database: ti-08-pro
   host: localhost
   #database: db/production.sqlite3
   adapter: postgresql
