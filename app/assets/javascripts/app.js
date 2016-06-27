@@ -1,4 +1,4 @@
-app = angular.module('angularRails',['ui.router','templates','Devise']);
+app = angular.module('angularRails',['ui.router','templates','Devise','angular-loading-bar']);
 app.config([
 '$stateProvider',
 '$urlRouterProvider',
@@ -48,7 +48,8 @@ function($stateProvider, $urlRouterProvider,AuthInterceptProvider,AuthProvider) 
     controller: 'ProductsCtrl',
     resolve: {
           productPromise: ['products', function(products){
-            return products.getAll();
+            products_aux = products.getAll();
+            return products_aux;
           }]
         }
   }).state('orders', {
@@ -56,8 +57,9 @@ function($stateProvider, $urlRouterProvider,AuthInterceptProvider,AuthProvider) 
     templateUrl: 'orders/_orders.html',
     controller: 'OrdersCtrl',
       resolve: {
-          orderPromise: ['orders', function(orders){
-            return orders.getAll();
+          orderPromise: ['orders', function(orders){  
+            orders_aux = orders.getAll();
+            return orders_aux;
           }]
         }
   }).state('stores', {

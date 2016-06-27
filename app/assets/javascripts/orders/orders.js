@@ -26,6 +26,46 @@ app.controller('OrdersCtrl', [
 '$http',
 function($scope, orders, $http){
 
-	$scope.orders = orders.orders;
+$('#table').bootstrapTable({
+    data: orders.orders,
+    onExpandRow:function (index, row, $detail) {
+            console.log(row);
+            var factura = (row.factura)? row.factura._id: '-';
+            var idtrx   = (row.factura)? row.factura.idtrx: '-';
+            $detail.html("<p><b>Proveedor:</b> "+row.proveedor+"</p>"+
+                         "<p><b>Cliente:</b> "+row.cliente+"</p>"+
+                         "<p><b>Cantidad:</b> "+row.cantidad+"</p>"+
+                         "<p><b>Factura:</b> "+factura+"</p>"+
+                         "<p><b>Transacción:</b> "+idtrx+"</p>");
+            //compExtInfo($detail, row);
+          },
+    columns: [{
+        field: '_id',
+        title: 'OC'
+    }, { 
+        field: 'tipo',
+        title: 'Tipo',
+        formatter:function(value,row,index)
+        {
+          if(value == 1)
+          {
+            return '<span class="glyphicon glyphicon-shopping-cart"></span>';
+          }else
+          {
+            return '<span class="glyphicon glyphicon-check"></span>';
+          }
+        } 
+    }, {
+        field: 'canal',
+        title: 'Canal'
+    }, {
+        field: 'sku',
+        title: 'SKU'
+    }, {
+        field: 'estado',
+        title: 'Estado'
+    }]
+});
+	//$scope.orders = orders.orders;
 
 }]);

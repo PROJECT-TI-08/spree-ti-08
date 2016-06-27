@@ -11,6 +11,8 @@
  * file per style scope.
  *
  *= require bootstrap/dist/css/bootstrap
+ *= require bootstrap-table/dist/bootstrap-table
+ *= require angular-loading-bar/build/loading-bar
  *= require_tree .
  *= require_self
  */

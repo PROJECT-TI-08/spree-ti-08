@@ -17,4 +17,6 @@
 //= require jquery
 //= require bootstrap
 //= require angular-bootstrap
+//= require bootstrap-table
+//= require angular-loading-bar
 //= require_tree .

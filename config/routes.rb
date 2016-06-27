@@ -28,13 +28,11 @@ Rails.application.routes.draw do
   
   ############### API ##################
 
-  post 'api/webhook'			 => 'api#webhook'
+  #get 'api/facebook'                     => 'facebook#set_post'
 
-  get 'api/save_saldo'                   => 'bank#save_saldo'
+  #get 'api/twitter'                      => 'twitter#set_tweet'
 
-  get 'api/trans'                        => 'bank#obtener_transacciones'
-
-  get 'api/save_products'                => 'products#save_products_stock'
+  post 'api/webhook'			               => 'api#webhook'
 
   get 'api/oc/recibir/:idoc'             => 'api#recibir_oc'
 

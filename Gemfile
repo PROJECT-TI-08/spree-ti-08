@@ -19,6 +19,12 @@ gem 'spree_gateway', '~> 3.1.0.rc1'
 #######################
 gem 'pg'
 #
+gem 'twitter'
+#
+gem "koala", "~> 2.2"
+#
+gem 'figaro'
+#
 gem "typhoeus"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.6'

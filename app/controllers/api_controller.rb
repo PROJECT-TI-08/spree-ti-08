@@ -8,7 +8,6 @@ class ApiController < ApplicationController
 def webhook
  begin
     data_json = JSON.parse request.body.read
-    #Applog.debug(data_json,'amqp message')
     promotion_obj = Promotion.create!({
              :sku       => data_json['sku'].to_s, 
              :precio    => data_json['precio'].to_i,
@@ -16,6 +15,11 @@ def webhook
              :fin       => Time.strptime(data_json['fin'].to_s, '%Q').to_s,
              :publicar  => data_json['publicar'],
              :codigo    => data_json['codigo'].to_s })
+
+    if data_json['publicar']
+      FacebookController.new.set_post(data_json['precio'],data_json['sku'].to_s,data_json['inicio'].to_s,data_json['fin'].to_s)
+      TwitterController.new.set_tweet(data_json['precio'],data_json['sku'].to_s,data_json['inicio'].to_s,data_json['fin'].to_s)
+    end
     render :nothing => true, :status => 200
   rescue => ex
     Applog.debug(ex.message,'webhook')
@@ -41,6 +45,7 @@ def enviar_transaccion(trx,idfactura)
   return {:validado => true, :trx => trx}
  rescue => ex
   Applog.debug(ex.message,'enviar_transaccion')
+  return {:validado => false, :trx => trx}
 end
 end
 
@@ -61,35 +66,41 @@ def validar_factura
       # Una vez recibida la factura se procede a realizar el pago
       response_bank =BankController.new.transferir(result_inv[0]['total'],
         Rails.application.config.bank_account,cliente['id_banco'])
-      
+      order_obj = Order.where('_id = ?', result_inv[0]['oc'].to_s).first
       if response_bank[:status]
         result_bank = response_bank[:result]
         # Se envia la transaccion para que el cliente verifique el pago
         result[:validado] = true
         Spawnling.new do
-	begin
+	      begin
           ########## Actualizamos factura localmente ###########
           factura = Factura.where('_id = ?', idfactura).first
           if !factura.blank?
              factura.idtrx = result_bank['_id']
              factura.save
           else
-	     logger.debug(result_bank);
+	           logger.debug(result_bank);
              logger.debug(result_inv);  
-             order_obj = Order.where('_id = ?', result_inv[0]['oc'].to_s).first
              factura_obj = Factura.create!({
              :_id    => result_inv[0]['_id'].to_s, 
              :bruto  => result_inv[0]['bruto'].to_f,
              :iva    => result_inv[0]['iva'].to_f, 
              :total  => result_inv[0]['total'].to_f,
              :idtrx    => result_bank['_id'].to_s,
-	     :order_id => order_obj['id'].to_i })         
+	           :order_id => order_obj['id'].to_i })         
           end
+          order_obj.estado = 'pagada'
+          order_obj.save
           enviar_transaccion(result_bank,idfactura)
        	   rescue => ex
     	     Applog.debug(ex.message,'validar_factura_2')
-   	   end
-	 end
+   	    end
+	      end
+      else
+        order_obj.estado = 'anulada por error pago'
+        order_obj.save
+        result[:validado] = false
+        OrdersController.new.anular_oc(result_inv[0]['oc'].to_s,'Error')
       end  
     end
     logger.debug("...Fin validar factura")
@@ -108,6 +119,18 @@ def validar_despacho
     result[:idfactura] = idfactura 
     result[:validado]  = true
     logger.debug("...Validar despacho")
+
+
+    response_inv = InvoicesController.new.obtener_factura(idfactura)
+    if response_inv[:status]
+     factura     = response_inv[:result]
+     if factura
+      order_obj = Order.where('_id = ?',factura[0]['oc'].to_s).first
+      order_obj.estado = 'despachada'
+      order_obj.save
+     end
+    end
+
     # Una vez se ha pagado el proveedor confirma el
     # despacho de los insumos
     Spawnling.new do
@@ -242,7 +265,7 @@ def recibir_oc
     if(oc_order['cantidad'] < total)    
         response_recep = OrdersController.new.recepcionar_oc(id_order)
         if response_recep[:status] 
-          Spawnling.new do
+          
             ###### Guardamos datos orden localmente ######
             order_obj = Order.create!({
               :_id                => oc_order['_id'], 
@@ -268,11 +291,14 @@ def recibir_oc
                 :iva    => result['iva'].to_f, 
                 :total  => result['total'].to_f,
 		            :order_id => order_obj['id'] })
-             
-                enviar_factura(result)
+                Spawnling.new do
+                  enviar_factura(result)
+                end
+                data_result = {:aceptado => true, :idoc => id_order}
+            else
+                OrdersController.new.rechazar_oc(id_order,'OC invalida')
+                data_result = {:aceptado => false, :idoc => id_order }
             end  
-          end
-          data_result = {:aceptado => true, :idoc => id_order}
         else
             OrdersController.new.rechazar_oc(id_order,'No hay producto en existencia')
             data_result = {:error => response_recep [:result], :aceptado => false, :idoc => id_order}
@@ -308,6 +334,7 @@ def enviar_factura(factura)
   return {:validado => true, :factura => factura}
   rescue => ex
     Applog.debug(ex.message,'enviar_factura')
+    return {:validado => false, :factura => factura}
   end
 end
 
@@ -327,6 +354,7 @@ def enviar_despacho(idfactura,cliente)
   return {:validado => true}
   rescue => ex
     Applog.debug(ex.message,'enviar_despacho')
+    return {:validado => false}
   end
 end
 
@@ -354,6 +382,17 @@ def validar_pago
           factura.save
         end
         ######################################
+
+        response_fac = InvoicesController.new.obtener_factura(idfactura)
+        if response_fac[:status]
+         factura     = response_fac[:result]
+         if factura
+          order_obj = Order.where('_id = ?',factura[0]['oc'].to_s).first
+          order_obj.estado = 'pagada'
+          order_obj.save
+         end
+        end   
+
         # Se procede a despachar lo establecido en la factura
         mover_despachar(idfactura)
       end
@@ -391,6 +430,7 @@ def mover_despachar(idfactura)
    almacen_cliente  = grupo['id_almacen']
    almacen_despacho =  Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,true,false).first
    j = 0
+   flag = false
    Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,false).each do |fabrica|
       list_products = stock_aux.get_stock(sku,fabrica['_id'])
       if list_products[:status]
@@ -413,10 +453,16 @@ def mover_despachar(idfactura)
           end
           j = j + 1
         end
-        enviar_despacho(factura[0]['_id'],factura[0]['cliente'])
+        flag = true
       end
    end
-    logger.debug("...Fin mover despacho")
+   if flag
+     enviar_despacho(factura[0]['_id'],factura[0]['cliente'])
+     order_obj = Order.where('_id = ?',factura[0]['oc'].to_s).first
+     order_obj.estado = 'despachada'
+     order_obj.save
+   end
+   logger.debug("...Fin mover despacho")
    return  {:status => true}
    rescue => ex
      Applog.debug(ex.message,'mover_despacho')

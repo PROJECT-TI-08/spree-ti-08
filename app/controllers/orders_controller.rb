@@ -9,7 +9,8 @@ class OrdersController < ApplicationController
      result = Array.new
      Order.order(:id).all.each do |item|
       result.push( :id => item['id'], :factura => item.factura, :proveedor => item['proveedor'], :cliente => item['cliente'],
-        :_id => item['_id'], :tipo => item['tipo'],  :sku => item['sku'], :cantidad => item['cantidad'], :canal => item['canal'])
+        :_id => item['_id'], :tipo => item['tipo'],  :sku => item['sku'], :cantidad => item['cantidad'], :canal => item['canal'],
+        :estado => item['estado'])
       end
     respond_with result
   end
@@ -188,9 +189,10 @@ class OrdersController < ApplicationController
   stock_aux = StoresController.new
   almacen_despacho =  Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,true,false).first
      j = 0
+     flag = false
      Store.where('pulmon = ? AND despacho = ? AND recepcion = ?',false,false,false).each do |fabrica|
         list_products = stock_aux.get_stock(sku,fabrica['_id'])
-	if list_products[:status]
+	       if list_products[:status]
           #new_list = list_products[:result].select{|aux| aux['despachado'] == false}
           list_products[:result].each do |item|
             if j < cantidad
@@ -209,7 +211,13 @@ class OrdersController < ApplicationController
             end
             j = j + 1
           end
+          flag = true
         end
+     end
+     if flag
+      order_obj = Order.where('_id = ?',oc_number).first
+      order_obj.estado = 'despachada'
+      order_obj.save
      end    
   end
 
