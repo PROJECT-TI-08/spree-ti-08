@@ -28,9 +28,9 @@ Rails.application.routes.draw do
   
   ############### API ##################
 
-  #get 'api/facebook'                     => 'facebook#set_post'
+  #get 'api/facebook'                     => 'facebook#test'
 
-  #get 'api/twitter'                      => 'twitter#set_tweet'
+  #get 'api/twitter'                      => 'twitter#test'
 
   post 'api/webhook'			               => 'api#webhook'
 

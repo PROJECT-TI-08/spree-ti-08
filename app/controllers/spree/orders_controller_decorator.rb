@@ -8,29 +8,50 @@ Spree::OrdersController.class_eval do
       real_qty  = params[:real_qty].to_i || 0
       sku       = params[:sku].to_i || 0
       options   = params[:options] || {}
-      direccion = params[:order_direccion] || 'N.A'
-
-      if quantity > real_qty
-        error = 'Lo sentimos, la cantidad solicitada es mayor a lo que actualmente tenemos en stock'
-      else
-        # 2,147,483,647 is crazy. See issue #2695.
-        if quantity.between?(1, 2_147_483_647)
-          begin
-            order.contents.add(variant, quantity, options)
-          rescue ActiveRecord::RecordInvalid => e
-            error = e.record.errors.full_messages.join(", ")
-          end
+      direccion = params[:order][:direccion] || ''
+      cupon     = params[:order][:cupon] || ''
+      total     = 0
+      byebug
+      if direccion.blank?
+          error = 'Por favor, rellena el campo dirección.'
+      else  
+        if quantity > real_qty
+          error = 'Lo sentimos, la cantidad solicitada es mayor a lo que actualmente tenemos en stock'
         else
-          error = Spree.t(:please_enter_reasonable_quantity)
+
+          if !cupon.blank?
+            promotion = Promotion.where('codigo = ?',cupon).first
+            if promotion
+              total = promotion.precio * quantity
+            else
+              error = 'Cupon de descuento no existente.'
+            end
+          end
+
+          # 2,147,483,647 is crazy. See issue #2695.
+          if quantity.between?(1, 2_147_483_647)
+            begin
+              order.contents.add(variant, quantity, options)
+            rescue ActiveRecord::RecordInvalid => e
+              error = e.record.errors.full_messages.join(", ")
+            end
+          else
+            error = Spree.t(:please_enter_reasonable_quantity)
+          end
         end
       end
-
+      
       if error
         flash[:error] = error
         redirect_back_or_default(spree.root_path)
       else
         respond_with(order) do |format|
-          result   = InvoicesController.new.crear_boleta('571262b8a980ba030058ab57','572aac69bdb6d403005fb049',order.total)  
+          if total > 0
+            new_price = total 
+          else
+            new_price = order.total
+          end 
+          result   = InvoicesController.new.crear_boleta('571262b8a980ba030058ab57','572aac69bdb6d403005fb049',new_price) 
           info     = result[:result]
           boleta   = info['_id']
           url_ok   = CGI.escape('http://integra8.ing.puc.cl/store/webpay_ok?order_id='+order.id.to_s+'&boleta_id='+boleta.to_s+
@@ -52,8 +73,7 @@ Spree::OrdersController.class_eval do
       @order = current_order
       response  = InvoicesController.new.obtener_factura(boleta_id)
       if(response[:status])
-       info = response[:result][0]
-
+        info = response[:result][0]
         flash.notice = 'La orden fue creada correctamente.'
         Spawnling.new do
           #address_info = order_aux.ship_address()
@@ -61,28 +81,28 @@ Spree::OrdersController.class_eval do
           #if address_info
           #  address = address_info[:address1] +' '+address_info[:address2] + ' ' + address_info[:city]
           #end
-	  quantity = 0
-	  price    = 0
+      	  quantity = 0
+      	  price    = 0
           @order.line_items().each do |item|
-              sku_aux = item.variant.sku
-	      quantity = item.quantity
-	      price    = item.price
-              response_order = OrdersController.new.despachar_process(sku_aux,price.to_i,boleta_id,quantity,direccion)
-              Applog.debug(sku.to_s + ' ' +boleta_id.to_s,'despacho_correcto') 
-	 end
+            sku_aux = item.variant.sku
+  	        quantity = item.quantity
+  	        price    = item.price
+            response_order = OrdersController.new.despachar_process(sku_aux,price.to_i,boleta_id,quantity,direccion)
+            Applog.debug(sku.to_s + ' ' +boleta_id.to_s,'despacho_correcto') 
+	        end
           order_obj = Order.create!({
-              :_id                => info['_id'],
-              :canal              => 'b2c',
-              :proveedor          => info['proveedor'],
-              :cliente            => info['cliente'],
-              :sku                => sku.to_i,
-              :cantidad           => quantity,
-              :cantidadDespachada => quantity,
-              :precioUnitario     => price.to_i,
-              :fechaEntrega       => info['created_at'],
-              :fechaDespachos     => [],
-              :estado             => info['estado'],
-              :tipo               => 1 })
+            :_id                => info['_id'],
+            :canal              => 'b2c',
+            :proveedor          => info['proveedor'],
+            :cliente            => info['cliente'],
+            :sku                => sku.to_i,
+            :cantidad           => quantity,
+            :cantidadDespachada => quantity,
+            :precioUnitario     => price.to_i,
+            :fechaEntrega       => info['created_at'],
+            :fechaDespachos     => [],
+            :estado             => info['estado'],
+            :tipo               => 1 })
         end
       end
       if @order = current_order

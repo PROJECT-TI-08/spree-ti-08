@@ -69,6 +69,13 @@
                   <%= f.text_field :direccion, :class => 'form-control', :value => 'Av. Vickuña, San Joaquin' %>
                </p>
              </div>
+             <br />
+             <div class="input-group">
+              <p class="form-group">
+                  <%= f.label :cupon, 'Cupon de descuento' %>
+                  <%= f.text_field :cupon, :class => 'form-control', :value => '' %>
+               </p>
+             </div>
           <% else %>
              <div class="panel panel-warning">
                 <div class="panel-heading">Lo sentimos</div>

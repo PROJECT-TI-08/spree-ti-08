@@ -11,11 +11,11 @@ class TwitterController < ApplicationController
 		end
 	end
 
-	def set_tweet(price='',sku='',inicio='',fin='')
-		inicio = Time.strptime(inicio, '%Q').strftime("%F %T")
-		fin    = Time.strptime(fin, '%Q').strftime("%F %T")
+	def set_tweet(price='',sku='',inicio='',fin='',promo='')
+		#inicio = Time.strptime(inicio, '%Q').strftime("%F %T")
+		#fin    = Time.strptime(fin, '%Q').strftime("%F %T")
 		product_aux = Product.where('sku = ?',sku).first
-		@client.update_with_media("Aprovecha esta oferta, #{product_aux.nombre} por $#{price}. Promoción valida
+		@client.update_with_media("¡OFERTA! #{product_aux.nombre} por $#{price}, código #{promo}. Valido
 			desde #{inicio} hasta #{fin}.", File.new(Rails.root.join('public', 'images', sku+'.jpg')))
 		respond_to do |format|
   			format.all { render :nothing => true, :status => 200 }

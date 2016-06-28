@@ -17,8 +17,8 @@ def webhook
              :codigo    => data_json['codigo'].to_s })
 
     if data_json['publicar']
-      FacebookController.new.set_post(data_json['precio'],data_json['sku'].to_s,data_json['inicio'].to_s,data_json['fin'].to_s)
-      TwitterController.new.set_tweet(data_json['precio'],data_json['sku'].to_s,data_json['inicio'].to_s,data_json['fin'].to_s)
+      FacebookController.new.set_post(data_json['precio'],data_json['sku'].to_s,data_json['inicio'].to_s,data_json['fin'].to_s,data_json['codigo'].to_s)
+      TwitterController.new.set_tweet(data_json['precio'],data_json['sku'].to_s,data_json['inicio'].to_s,data_json['fin'].to_s,data_json['codigo'].to_s)
     end
     render :nothing => true, :status => 200
   rescue => ex
