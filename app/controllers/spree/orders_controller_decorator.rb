@@ -11,7 +11,6 @@ Spree::OrdersController.class_eval do
       direccion = params[:order][:direccion] || ''
       cupon     = params[:order][:cupon] || ''
       total     = 0
-      byebug
       if direccion.blank?
           error = 'Por favor, rellena el campo dirección.'
       else  
@@ -55,7 +54,7 @@ Spree::OrdersController.class_eval do
           info     = result[:result]
           boleta   = info['_id']
           url_ok   = CGI.escape('http://integra8.ing.puc.cl/store/webpay_ok?order_id='+order.id.to_s+'&boleta_id='+boleta.to_s+
-            '&sku='+sku.to_s+'&direccion='+direccion)
+            '&sku='+sku.to_s+'&direccion='+direccion+'&qty='+quantity.to_s)
           url_fail = CGI.escape('http://integra8.ing.puc.cl/store/webpay_fail?order_id='+order.id.to_s+'&boleta_id='+boleta.to_s+
             '&sku='+sku.to_s+'&direccion='+direccion)
           redirect_to('https://integracion-2016-prod.herokuapp.com/web/pagoenlinea?callbackUrl='+url_ok.to_s+'&cancelUrl='+url_fail.to_s+
@@ -69,18 +68,33 @@ Spree::OrdersController.class_eval do
       boleta_id = params.require(:boleta_id)
       sku       = params.require(:sku)
       direccion = params.require(:direccion)
+      qty       = params.require(:qty)
       order_aux = Spree::Order.find(order_id)
       @order = current_order
       response  = InvoicesController.new.obtener_factura(boleta_id)
       if(response[:status])
         info = response[:result][0]
         flash.notice = 'La orden fue creada correctamente.'
-        Spawnling.new do
+        #Spawnling.new do
           #address_info = order_aux.ship_address()
           #address = 'N.A'
           #if address_info
           #  address = address_info[:address1] +' '+address_info[:address2] + ' ' + address_info[:city]
           #end
+          order_obj = Order.create!({
+            :_id                => boleta_id
+            :canal              => 'b2c',
+            :proveedor          => info['proveedor'],
+            :cliente            => info['cliente'],
+            :sku                => sku.to_i,
+            :cantidad           => qty,
+            :cantidadDespachada => qty,
+            :precioUnitario     => info['total'].to_i,
+            :fechaEntrega       => info['created_at'],
+            :fechaDespachos     => [],
+            :estado             => info['estado'],
+            :tipo               => 1 })
+          end
       	  quantity = 0
       	  price    = 0
           @order.line_items().each do |item|
@@ -90,21 +104,7 @@ Spree::OrdersController.class_eval do
             response_order = OrdersController.new.despachar_process(sku_aux,price.to_i,boleta_id,quantity,direccion)
             Applog.debug(sku.to_s + ' ' +boleta_id.to_s,'despacho_correcto') 
 	        end
-          order_obj = Order.create!({
-            :_id                => info['_id'],
-            :canal              => 'b2c',
-            :proveedor          => info['proveedor'],
-            :cliente            => info['cliente'],
-            :sku                => sku.to_i,
-            :cantidad           => quantity,
-            :cantidadDespachada => quantity,
-            :precioUnitario     => price.to_i,
-            :fechaEntrega       => info['created_at'],
-            :fechaDespachos     => [],
-            :estado             => info['estado'],
-            :tipo               => 1 })
-        end
-      end
+      #end
       if @order = current_order
         @order.empty!
       end
