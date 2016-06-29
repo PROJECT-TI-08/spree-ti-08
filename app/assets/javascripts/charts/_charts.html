@@ -1,3 +1,9 @@
+<div id="tabs" class="col-lg-12 col-sm-12">
+  <ul>
+    <li><a href="#tabs-1">Financieras</a></li>
+    <li><a href="#tabs-2">Logistica</a></li>
+  </ul>
+<div id="tabs-1">  
 <div class="col-lg-6 col-sm-6">
 	<div class="panel panel-default">
 	    <div class="panel-heading">Numero de transacciones</div>
@@ -30,30 +36,62 @@
 	    	<input class="text-center" type="checkbox" id="is_grouped" value="0">Agrupado</input>
 	    	<input id="general" type="button" class="btn btn-success" value="General">
 	        </p>
-	    	<!--<select id="dates">
-	    		<option value="0">General</option>
-	    		<option value="2016-06-20">2016-06-20</option>
-	    		<option value="2016-06-21">2016-06-21</option>
-	    		<option value="2016-06-22">2016-06-22</option>
-	    		<option value="2016-06-23">2016-06-23</option>
-	    		<option value="2016-06-24">2016-06-24</option>
-	    		<option value="2016-06-25">2016-06-25</option>
-	    		<option value="2016-06-26">2016-06-26</option>
-	    		<option value="2016-06-27">2016-06-27</option>
-	    	</select>-->
-
 	    	<div id='special'>
 				<canvas id="transacciones"></canvas>
 			</div>
 		</div>
 	</div>
 </div>
-<!--<div class="col-lg-6 col-sm-6">
-    <div class="panel panel-default">
-        <div class="panel-heading">Estadisticas</div>
-        <div class="panel-body">
-			<canvas id="line" class="chart chart-line" chart-data="data_line" chart-labels="labels_line" chart-series="series_line" chart-options="options_line" chart-dataset-override="datasetOverride_line" chart-click="onClick"></canvas>
+</div>
+<div id="tabs-2">
+<div class="col-lg-6 col-sm-6">
+	<div class="panel panel-default">
+	    <div class="panel-heading">Bodegas</div>
+	    <div class="panel-body">
+			<canvas id="bodegas"></canvas>
 		</div>
 	</div>
-</div>-->
+</div>
+<div class="col-lg-6 col-sm-6">
+	<div class="panel panel-default">
+	    <div class="panel-heading">Central</div>
+	    <div class="panel-body">
+			<canvas id="central"></canvas>
+		</div>
+	</div>
+</div>
+<div class="col-lg-4 col-sm-4">
+	<div class="panel panel-default">
+	    <div class="panel-heading">Pulmon</div>
+	    <div class="panel-body">
+			<canvas id="pulmon"></canvas>
+		</div>
+	</div>
+</div>
+<div class="col-lg-4 col-sm-4">
+	<div class="panel panel-default">
+	    <div class="panel-heading">Despacho</div>
+	    <div class="panel-body">
+			<canvas id="despacho"></canvas>
+		</div>
+	</div>
+</div>
+<div class="col-lg-4 col-sm-4">
+	<div class="panel panel-default">
+	    <div class="panel-heading">Recepcion</div>
+	    <div class="panel-body">
+			<canvas id="recepcion"></canvas>
+		</div>
+	</div>
+</div>
+<div class="col-lg-12 col-sm-12">
+	<div class="panel panel-default">
+	    <div class="panel-heading">Stock productos</div>
+	    <div class="panel-body">
+			<canvas id="stocks"></canvas>
+		</div>
+	</div>
+</div>
+</div>
+</div>
 

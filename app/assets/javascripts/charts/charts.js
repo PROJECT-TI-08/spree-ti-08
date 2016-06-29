@@ -44,6 +44,273 @@ app.factory('charts', ['$http',function($http){
 app.controller("ChartCtrl",['$scope','charts','stores','products', function ($scope,charts,stores,products) {
   /*$scope.labels = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
   $scope.series = ['Series A', 'Series B'];*/
+ $( "#tabs" ).tabs({
+  activate: function( event, ui ) {
+    if(event.currentTarget.innerHTML == 'Logistica')
+    {
+      stores.getAll().then(function(response){
+        console.log(response);
+        var result_stocks = response.data;
+        var labels_stocks = [];
+        var values_stocks = [];
+        var central_arr = [];
+        var pulmon_arr  = [];
+        var despacho_arr = [];
+        var recepcion_arr = [];
+        var t = 1;
+        var total_usado = 0;
+        var total_spacio = 0;
+        for(var i = 0; i < result_stocks.length;i++){
+          if(result_stocks[i].despacho && !result_stocks[i].pulmon && !result_stocks[i].recepcion)
+          {
+            labels_stocks.push('despacho');
+            despacho_arr.push(result_stocks[i].usedSpace);
+            despacho_arr.push(result_stocks[i].totalSpace - result_stocks[i].usedSpace);
+          }
+          if(!result_stocks[i].despacho && result_stocks[i].pulmon && !result_stocks[i].recepcion)
+          {
+            labels_stocks.push('pulmon');
+            pulmon_arr.push(result_stocks[i].usedSpace);
+            pulmon_arr.push(result_stocks[i].totalSpace - result_stocks[i].usedSpace);
+          }
+          if(!result_stocks[i].despacho && !result_stocks[i].pulmon && result_stocks[i].recepcion)
+          {
+            labels_stocks.push('recepcion');
+            recepcion_arr.push(result_stocks[i].usedSpace);
+            recepcion_arr.push(result_stocks[i].totalSpace - result_stocks[i].usedSpace);
+          }
+          if(!result_stocks[i].despacho && !result_stocks[i].pulmon && !result_stocks[i].recepcion)
+          {
+            labels_stocks.push('central '+t);
+            total_usado = total_usado + result_stocks[i].usedSpace;
+            total_spacio = total_spacio + result_stocks[i].totalSpace;
+            if(t==2)
+            {
+              central_arr.push(total_usado);
+              central_arr.push(total_spacio - total_usado);
+            }
+            t = t + 1;
+          }
+          values_stocks.push(result_stocks[i].usedSpace);
+        }
+
+        var ctx = document.getElementById("bodegas");
+        var bodegas_chart = new Chart(ctx,{
+        type: 'pie',
+        data: {
+          labels:labels_stocks,
+          datasets:[{
+            data: values_stocks,
+            backgroundColor: [
+                "#FF6384",
+                "#36A2EB",
+                "#FFCE56",
+                "#A3DE11",
+                "#532DD8"
+            ],
+            hoverBackgroundColor: [
+                "#FF6384",
+                "#36A2EB",
+                "#FFCE56",
+                "#A3DE11",
+                "#532DD8"
+            ]
+          }
+          ]
+        },
+          options:{
+            legend:{
+                display:true
+             }   
+        }
+      });
+
+        var ctx_central = document.getElementById("central");
+        var central_chart = new Chart(ctx_central,{
+        type: 'pie',
+        data: {
+          labels:['Usado','Disponible'],
+          datasets:[{
+            data: central_arr,
+            backgroundColor: [
+                "#FF6384",
+                "#36A2EB"
+            ],
+            hoverBackgroundColor: [
+                "#FF6384",
+                "#36A2EB"
+            ]
+          }
+          ]
+        },
+          options:{
+            legend:{
+                display:true
+             }   
+        }
+      });
+
+         var ctx_pulmon = document.getElementById("pulmon");
+        var pulmon_chart = new Chart(ctx_pulmon,{
+        type: 'pie',
+        data: {
+          labels:['Usado','Disponible'],
+          datasets:[{
+            data: pulmon_arr,
+            backgroundColor: [
+                "#FF6384",
+                "#36A2EB"
+            ],
+            hoverBackgroundColor: [
+                "#FF6384",
+                "#36A2EB"
+            ]
+          }
+          ]
+        },
+          options:{
+            legend:{
+                display:true
+             }   
+        }
+      });
+
+         var ctx_despacho = document.getElementById("despacho");
+        var despacho_chart = new Chart(ctx_despacho,{
+        type: 'pie',
+        data: {
+          labels:['Usado','Disponible'],
+          datasets:[{
+            data: despacho_arr,
+            backgroundColor: [
+                "#FF6384",
+                "#36A2EB"
+            ],
+            hoverBackgroundColor: [
+                "#FF6384",
+                "#36A2EB"
+            ]
+          }
+          ]
+        },
+          options:{
+            legend:{
+                display:true
+             }   
+        }
+      });
+
+         var ctx_recepcion = document.getElementById("recepcion");
+        var recepcion_chart = new Chart(ctx_recepcion,{
+        type: 'pie',
+        data: {
+          labels:['Usado','Disponible'],
+          datasets:[{
+            data: recepcion_arr,
+            backgroundColor: [
+                "#FF6384",
+                "#36A2EB"
+            ],
+            hoverBackgroundColor: [
+                "#FF6384",
+                "#36A2EB"
+            ]
+          }
+          ]
+        },
+          options:{
+            legend:{
+                display:true
+             }   
+        }
+      });
+
+      });
+
+      charts.getStocks().then(function(response){
+        console.log('stocks');
+        console.log(response);
+        var result = response.data;
+        var labels_stocks = [];
+        var product_18 = [];
+        var product_24 = [];
+        var product_26 = [];
+        var product_37 = [];
+        //var product_37 = [];
+        for(var i = 0; i < result.length;i++)
+        {
+          labels_stocks.push(result[i].created_at);
+          if(result[i].sku == '18')
+          {
+             product_18.push(result[i].qty);
+          }
+          if(result[i].sku == '24')
+          {
+            product_24.push(result[i].qty); 
+          }
+          if(result[i].sku == '26')
+          {
+            product_26.push(result[i].qty);
+          }
+          if(result[i].sku == '37')
+          {
+            product_37.push(result[i].qty);
+          }
+        }
+
+        var ctx_stocks = document.getElementById("stocks").getContext("2d");
+        var chart_stocks = new Chart(ctx_stocks, {
+          type: 'bar',
+          data: {
+            labels: labels_stocks,
+              datasets: [{
+                  label: '18',
+                  data: product_18,
+                  backgroundColor: 'rgba(255, 99, 132, 0.5)'
+              },{
+                  label: '24',
+                  data: product_24,
+                  backgroundColor: 'rgba(255, 99, 0, 0.5)'
+              },
+              {
+                  label: '26',
+                  data: product_26,
+                  backgroundColor: 'rgba(0, 99, 111, 0.5)'
+              },
+              {
+                  label: '37',
+                  data: product_37,
+                  backgroundColor: 'rgba(45, 0, 111, 0.5)'
+              }]
+          },
+          options:
+          {
+            legend:{
+                display:true
+             },
+             scales: {
+                  yAxes: [{
+                      ticks: {
+                          // Create scientific notation labels
+                          callback: function(value, index, values) {
+                              return value;
+                          }
+                      }
+                  }]
+              }
+          }
+        });       
+
+
+      });
+
+      products.getAll().then(function(response){
+        console.log('productos')
+        console.log(response);
+      });
+    }  
+  }
+});
  $('#dates_picker').datepicker({ 
   onSelect: function(date){
     charts.getTransacciones(date).then(function(response){
@@ -56,7 +323,6 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
  $scope.transacciones = function(response)
  {
     var is_grouped = $('#is_grouped').is(':checked');
-    console.log(is_grouped);
     $('#special').html('');
     var result = response.data.result.result.data;
     var dates = [];
@@ -154,9 +420,9 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
       }
     });
  }
-  charts.getTransacciones('0').then(function(response){
+  /*charts.getTransacciones('0').then(function(response){
     $scope.transacciones(response);
-  });
+  });*/
 
   $("#general").on('click',function(){
       charts.getTransacciones('0').then(function(response){
@@ -172,7 +438,6 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
   });
 
   charts.getSaldos().then(function(response){
-      console.log(response);
       length_saldo = response.data.length
       var saldos       = [];
       var saldo_fechas = [];
@@ -215,20 +480,7 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
       });
     });
 
-  /*charts.getStocks().then(function(response){
-      console.log(response);
-    });
-
-  stores.getAll().then(function(response){
-      console.log(response);
-    });
-
-  products.getAll().then(function(response){
-    console.log(response);
-  });*/
-
   charts.getOrdersCount().then(function(response){
-    console.log(response);
     var result = response.data;
     var number_keys = Object.keys(result.bynumber);
     var number_length = number_keys.length;
@@ -275,8 +527,6 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
            }   
       }
     });
-    console.log(price_keys);
-    console.log(prices);
     var ctx2 = document.getElementById("byprices");
     var myDoughnutChart = new Chart(ctx2,{
         type: 'doughnut',
