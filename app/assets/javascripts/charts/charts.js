@@ -94,8 +94,8 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
           values_stocks.push(result_stocks[i].usedSpace);
         }
 
-        var ctx = document.getElementById("bodegas");
-        var bodegas_chart = new Chart(ctx,{
+        var ctx_bodegas = document.getElementById("bodegas");
+        var bodegas_chart = new Chart(ctx_bodegas,{
         type: 'pie',
         data: {
           labels:labels_stocks,
@@ -239,7 +239,10 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
         //var product_37 = [];
         for(var i = 0; i < result.length;i++)
         {
-          labels_stocks.push(result[i].created_at);
+          if(labels_stocks.indexOf(result[i].date)==-1)
+          {
+            labels_stocks.push(result[i].date);
+          }
           if(result[i].sku == '18')
           {
              product_18.push(result[i].qty);
@@ -340,7 +343,9 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
             dates[day+'-'+month+'-'+year]['compras'] = 0;
             dates[day+'-'+month+'-'+year]['ventas'] = 0;
           }
-          if(result[i]['origen'] == '571262c3a980ba030058ab5e')
+          
+          //571262c3a980ba030058ab5e
+          if(result[i]['origen'] == '572aac69bdb6d403005fb056')
           {
             dates[day+'-'+month+'-'+year]['compras'] = dates[day+'-'+month+'-'+year]['compras'] + result[i]['monto'];
           }else
@@ -391,8 +396,8 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
     }
 
     $('#special').html("<canvas id='transacciones'></canvas>");
-    var ctx = document.getElementById("transacciones");
-    var scatterChart = new Chart(ctx, {
+    var ctx_trans = document.getElementById("transacciones");
+    var chart_trans = new Chart(ctx_trans, {
       type: 'line',
       data: {
         labels: dates_keys,
@@ -446,8 +451,8 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
         saldos.push(response.data[i].valor);
         saldo_fechas.push(response.data[i].date);
       }
-      var ctx = document.getElementById("saldos").getContext("2d");
-      var scatterChart = new Chart(ctx, {
+      var ctx_saldos = document.getElementById("saldos").getContext("2d");
+      var chart_saldos = new Chart(ctx_saldos, {
         type: 'bar',
         data: {
           labels: saldo_fechas,

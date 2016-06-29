@@ -14,7 +14,9 @@ def saldos
 end
 
 def stocks
-  result = ProductsStock.all
+  #571262aaa980ba030058a320
+  #571262aaa980ba030058a3ae
+  result = ProductsStock.all.where('store IN (?,?)','572aad41bdb6d403005fb418','572aad41bdb6d403005fb4b6')
   respond_to do |format|
     format.json  { render json: result }
     format.html  { render json: result }
