@@ -32,6 +32,14 @@ Rails.application.routes.draw do
 
   #get 'api/twitter'                      => 'twitter#test'
 
+  post 'api/transacciones'                => 'bank#obtener_transacciones'
+
+  get 'api/orderschart'                  => 'api#orders_chart'
+
+  get 'api/stocks'                       => 'api#stocks'     
+
+  get 'api/saldos'                       => 'api#saldos'
+
   post 'api/webhook'			               => 'api#webhook'
 
   get 'api/oc/recibir/:idoc'             => 'api#recibir_oc'

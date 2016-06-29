@@ -13,6 +13,7 @@
  *= require bootstrap/dist/css/bootstrap
  *= require bootstrap-table/dist/bootstrap-table
  *= require angular-loading-bar/build/loading-bar
+ *= require jquery-ui
  *= require_tree .
  *= require_self
  */

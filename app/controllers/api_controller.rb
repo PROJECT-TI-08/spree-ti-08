@@ -5,6 +5,51 @@ class ApiController < ApplicationController
 ################### CLIENTE ###################
 ###############################################
 
+def saldos
+  result = SaldoInfo.all
+  respond_to do |format|
+    format.json  { render json: result }
+    format.html  { render json: result }
+  end
+end
+
+def stocks
+  result = ProductsStock.all
+  respond_to do |format|
+    format.json  { render json: result }
+    format.html  { render json: result }
+  end
+end
+
+def orders_chart
+  result = Order.all
+  b2b = 0
+  b2c = 0
+  ftp = 0
+  result.each do |order|
+    if !order.factura.nil?
+      if order.canal == "b2b"
+        b2b = order.factura.total + b2b
+      end
+      if order.canal == "b2c"
+        b2c = order.factura.total + b2c
+      end
+      if order.canal == "ftp"
+        ftp = order.factura.total + ftp
+      end
+    end
+  end
+  result_price = Hash.new
+  result_price[:b2b] = b2b
+  result_price[:b2c] = b2c
+  result_price[:ftp] = ftp
+  result_number = Order.all.group(:canal).count
+  respond_to do |format|
+    format.json  { render json: {:byprice => result_price,:bynumber => result_number } }
+    format.html  { render json: {:byprice => result_price,:bynumber => result_number } }
+  end
+end
+
 def webhook
  begin
     data_json = JSON.parse request.body.read

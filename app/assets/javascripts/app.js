@@ -1,4 +1,4 @@
-app = angular.module('angularRails',['ui.router','templates','Devise','angular-loading-bar']);
+app = angular.module('angularRails',['ui.router','templates','Devise','angular-loading-bar','chart.js']);
 app.config([
 '$stateProvider',
 '$urlRouterProvider',
@@ -71,6 +71,10 @@ function($stateProvider, $urlRouterProvider,AuthInterceptProvider,AuthProvider) 
             return stores.getAll();
           }]
         }
+  }).state('charts', {
+    url: '/statistics',
+    templateUrl: 'charts/_charts.html',
+    controller: 'ChartCtrl'
   }).state('login', {
       url: '/login',
       templateUrl: 'auth/_login.html',

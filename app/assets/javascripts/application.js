@@ -15,8 +15,11 @@
 //= require angular-rails-templates
 //= require angular-ui-router
 //= require jquery
+//= require jquery-ui
 //= require bootstrap
 //= require angular-bootstrap
 //= require bootstrap-table
 //= require angular-loading-bar
+//= require Chart.js/dist/Chart
+//= require angular-chart.js/dist/angular-chart
 //= require_tree .

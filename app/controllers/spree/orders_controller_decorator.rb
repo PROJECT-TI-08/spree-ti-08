@@ -82,7 +82,7 @@ Spree::OrdersController.class_eval do
           #  address = address_info[:address1] +' '+address_info[:address2] + ' ' + address_info[:city]
           #end
           order_obj = Order.create!({
-            :_id                => boleta_id
+            :_id                => boleta_id,
             :canal              => 'b2c',
             :proveedor          => info['proveedor'],
             :cliente            => info['cliente'],
@@ -94,7 +94,6 @@ Spree::OrdersController.class_eval do
             :fechaDespachos     => [],
             :estado             => info['estado'],
             :tipo               => 1 })
-          end
       	  quantity = 0
       	  price    = 0
           @order.line_items().each do |item|
@@ -104,7 +103,7 @@ Spree::OrdersController.class_eval do
             response_order = OrdersController.new.despachar_process(sku_aux,price.to_i,boleta_id,quantity,direccion)
             Applog.debug(sku.to_s + ' ' +boleta_id.to_s,'despacho_correcto') 
 	        end
-      #end
+      end
       if @order = current_order
         @order.empty!
       end

@@ -57,10 +57,17 @@ def transferir(monto,origen,destino)
     end
   end
 
-  def obtener_transacciones   
-    fechaInicio = params.require(:fechaInicio) || '2016-04-01'
-    fechaFin    = params.require(:fechaFin)    || '2016-07-01'
-    response = obtener_cartola(fechaInicio.to_datetime.strftime('%Q'),fechaFin.to_datetime.strftime('%Q'),
+  def obtener_transacciones
+    fecha = params.require(:fecha)   
+    if fecha == '0'
+      fechaInicio = '2016-04-01'
+      fechaFin    = '2016-07-01'
+    else
+      fechaInicio = params.require(:fecha)
+      fechaFin    = params.require(:fecha)
+    end
+    new_fin = fechaFin.to_datetime + 24.hours
+    response = obtener_cartola(fechaInicio.to_datetime.strftime('%Q'),new_fin.to_datetime.strftime('%Q'),
       Rails.configuration.bank_account)
     respond_to do |format|
       format.json  { render json: {:status => true,:result => response} }
