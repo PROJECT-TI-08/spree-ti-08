@@ -31,18 +31,18 @@ def orders_chart
       if order.canal == "b2b"
         b2b = order.factura.total + b2b
       end
-      if order.canal == "b2c"
-        b2c = order.factura.total + b2c
-      end
       if order.canal == "ftp"
         ftp = order.factura.total + ftp
       end
     end
+    if order.canal == "b2c"
+       b2c = (order.precioUnitario * order.cantidad) + b2c
+    end
   end
   result_price = Hash.new
   result_price[:b2b] = b2b
-  result_price[:b2c] = b2c
   result_price[:ftp] = ftp
+  result_price[:b2c] = b2c
   result_number = Order.all.group(:canal).count
   respond_to do |format|
     format.json  { render json: {:byprice => result_price,:bynumber => result_number } }

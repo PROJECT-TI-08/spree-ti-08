@@ -135,7 +135,7 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
       options:
       {
         title: {
-          display: true,
+          display: false,
           text: 'Transacciones'
         },
         legend:{
@@ -195,7 +195,7 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
         options:
         {
           title: {
-            display: true,
+            display: false,
             text: 'Saldos'
           },
           legend:{
@@ -267,8 +267,8 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
         options:{
           defaultFontSize:30,
            title: {
-              display: true,
-              text: 'Estadisticas generales'
+              display: false,
+              text: 'Numero de transacciones'
           },
           legend:{
               display:true
@@ -299,8 +299,8 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
         options:{
           defaultFontSize:30,
            title: {
-              display: true,
-              text: 'Estadisticas generales'
+              display: false,
+              text: 'Monto de transacciones'
           },
           legend:{
               display:true
