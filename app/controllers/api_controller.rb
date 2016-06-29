@@ -149,9 +149,17 @@ def validar_factura
       end  
     end
     logger.debug("...Fin validar factura")
-    respond_with result, json: result
+    #respond_with result, json: result
+    respond_to do |format|
+        format.json  { render json: result }
+        format.html  { render json: result }
+     end
    rescue => ex
      Applog.debug(ex.message,'validar_factura')
+     respond_to do |format|
+        format.json  { render json: {:status => false} }
+        format.html  { render json: {:status => false} }
+     end
    end	
 end
 
@@ -181,9 +189,17 @@ def validar_despacho
     Spawnling.new do
       mover_productos()
     end
-    respond_with result, json: result
+    #respond_with result, json: result
+    respond_to do |format|
+        format.json  { render json: result }
+        format.html  { render json: result }
+     end
    rescue => ex
      Applog.debug(ex.message,'validar_despacho')
+     respond_to do |format|
+        format.json  { render json: {:status => false} }
+        format.html  { render json: {:status => false} }
+     end
    end
 end
 
@@ -360,6 +376,10 @@ def recibir_oc
   end
   rescue => ex
     Applog.debug(ex.message,'recibir_oc')
+    respond_to do |format|
+     format.json  { render json: {:aceptado => false}}
+     format.html { render json: {:aceptado => false}}
+    end
   end
 end
 
@@ -443,7 +463,11 @@ def validar_pago
       end
     end
     logger.debug("...Fin validar pago")
-    respond_with result, json: result
+     #respond_with result, json: result
+     respond_to do |format|
+        format.json  { render json: result }
+        format.html  { render json: result }
+     end
    rescue => ex
      Applog.debug(ex.message,'validar_pago')
    end
@@ -547,6 +571,10 @@ def consultar_stock(sku = nil)
   end
  rescue => ex
    Applog.debug(ex.message,'consultar_stock')
+   respond_to do |format|
+      format.json  { render json: {:status => false} }
+      format.html  { render json: {:status => false} }
+   end
  end
 end
 
