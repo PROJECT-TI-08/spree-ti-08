@@ -477,7 +477,7 @@ $( "#from" ).datepicker({
   $scope.facturacion = function(response)
   {
     $('#special_2').html('');
-    $('#special_2').html("<canvas id='transacciones'></canvas>");
+    $('#special_2').html("<canvas id='facturacion'></canvas>");
     var ctx_facturacion = document.getElementById("facturacion").getContext("2d");;
     var chart_facturacion = new Chart(ctx_facturacion, {
       type: 'line',
