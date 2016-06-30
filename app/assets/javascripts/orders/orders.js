@@ -25,7 +25,7 @@ app.controller('OrdersCtrl', [
 'orders',
 '$http',
 function($scope, orders, $http){
-
+console.log(orders.orders);
 $('#table').bootstrapTable({
     data: orders.orders,
     onExpandRow:function (index, row, $detail) {

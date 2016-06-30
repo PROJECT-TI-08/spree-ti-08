@@ -80,8 +80,8 @@ def orders_data
     end
   end
   respond_to do |format|
-    format.json  { render json: {:values => values,:dates => dates } }
-    format.html  { render json: {:values => values,:dates => dates } }
+    format.json  { render json: {:values => values,:dates => dates, :result => result } }
+    format.html  { render json: {:values => values,:dates => dates, :result => result } }
   end
 end
 

@@ -474,8 +474,56 @@ $( "#from" ).datepicker({
 
     });
 
+    $("#info_fac").accordion({
+      collapsible: true
+    });
+
   $scope.facturacion = function(response)
   {
+    console.log(response.data.result);
+     $('#table').bootstrapTable('destroy');
+              $('#table').bootstrapTable({
+    data: response.data.result,
+    onExpandRow:function (index, row, $detail) {
+            console.log(row);
+            var factura = (row.factura)? row.factura._id: '-';
+            var idtrx   = (row.factura)? row.factura.idtrx: '-';
+            $detail.html("<p><b>Proveedor:</b> "+row.proveedor+"</p>"+
+                         "<p><b>Cliente:</b> "+row.cliente+"</p>"+
+                         "<p><b>Cantidad:</b> "+row.cantidad+"</p>"+
+                         "<p><b>Factura:</b> "+factura+"</p>"+
+                         "<p><b>Transacción:</b> "+idtrx+"</p>"+
+                         "<p><b>Fecha:</b>"+row.created_at+"</p>");
+            //compExtInfo($detail, row);
+          },
+    columns: [{
+        field: '_id',
+        title: 'OC'
+    }, { 
+        field: 'tipo',
+        title: 'Tipo',
+        formatter:function(value,row,index)
+        {
+          if(value == 1)
+          {
+            return '<span class="glyphicon glyphicon-shopping-cart"></span>';
+          }else
+          {
+            return '<span class="glyphicon glyphicon-check"></span>';
+          }
+        } 
+    }, {
+        field: 'canal',
+        title: 'Canal'
+    }, {
+        field: 'sku',
+        title: 'SKU'
+    }, {
+        field: 'estado',
+        title: 'Estado'
+    }]
+});
+
     $('#special_2').html('');
     $('#special_2').html("<canvas id='facturacion'></canvas>");
     var ctx_facturacion = document.getElementById("facturacion").getContext("2d");;
