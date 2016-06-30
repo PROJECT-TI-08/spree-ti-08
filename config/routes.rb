@@ -36,6 +36,8 @@ Rails.application.routes.draw do
 
   get 'api/orderschart'                  => 'api#orders_chart'
 
+  post 'api/ordersdata'                   => 'api#orders_data'
+
   get 'api/stocks'                       => 'api#stocks'     
 
   get 'api/saldos'                       => 'api#saldos'

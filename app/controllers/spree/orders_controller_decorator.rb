@@ -21,9 +21,13 @@ Spree::OrdersController.class_eval do
           if !cupon.blank?
             promotion = Promotion.where('codigo = ?',cupon).first
             if promotion
-              total = promotion.precio * quantity
+              if DateTime.now >= promotion.inicio && DateTime.now <= promotion.fin
+                total = promotion.precio * quantity
+              else
+                error = 'Cupón vencido.'
+              end
             else
-              error = 'Cupon de descuento no existente.'
+              error = 'Cupón de descuento no existente.'
             end
           end
 

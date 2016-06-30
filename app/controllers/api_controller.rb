@@ -14,12 +14,74 @@ def saldos
 end
 
 def stocks
+
+  #'572aad41bdb6d403005fb418','572aad41bdb6d403005fb4b6'
+  #'571262aaa980ba030058a320','571262aaa980ba030058a3ae'dev 
   #571262aaa980ba030058a320
   #571262aaa980ba030058a3ae
-  result = ProductsStock.all.where('store IN (?,?)','572aad41bdb6d403005fb418','572aad41bdb6d403005fb4b6')
+  products = ["18","24","26","37"]
+  skus = Hash.new
+  result_dates = ProductsStock.select([:date]).where('store IN (?,?)','572aad41bdb6d403005fb418','572aad41bdb6d403005fb4b6').group(:date)
+  dates = Array.new
+  result_dates.each do |date_item|
+    dates.push(date_item.date)
+  end
+  products.each do |item|
+    skus[item] = Array.new
+    result_dates.each do |aux|
+        data = ProductsStock.where('store IN (?,?) AND date = ? AND sku = ?','572aad41bdb6d403005fb418','572aad41bdb6d403005fb4b6',aux.date,item).group(:date,:sku).sum(:qty)
+        if data.values[0].nil?
+          skus[item].push(0)
+        else
+          skus[item].push(data.values[0])
+        end
+    end
+  end
+  
   respond_to do |format|
-    format.json  { render json: result }
-    format.html  { render json: result }
+    format.json  { render json: {:labels => dates,:values => skus }}
+    format.html  { render json: {:labels => dates,:values => skus }}
+  end
+end
+
+def orders_data
+  inicio  = params.require(:inicio)
+  fin     = params.require(:fin)
+  type    = params.require(:type)
+
+  if inicio == '0'
+    inicio = DateTime.now - 5.days
+    fin    = DateTime.now
+  end  
+  dates  = Array.new
+  values = Array.new
+  if type == '0'
+     result = Order.all.where('created_at >= ? AND created_at <= ?',inicio,fin)
+  else
+    canal = ''
+    if type == '1'
+      canal = 'ftp'
+    end
+    if type == '2'
+      canal = 'b2c'
+    end
+    if type == '3'
+      canal = 'b2b'
+    end
+    result = Order.all.where('created_at >= ? AND created_at <= ? AND canal = ?',inicio,fin,canal)
+  end 
+
+  result.each do |order|
+    dates.push(order.created_at)
+    if !order.factura.nil?
+       values.push(order.factura.total)
+    else
+       values.push(order.precioUnitario * order.cantidad)
+    end
+  end
+  respond_to do |format|
+    format.json  { render json: {:values => values,:dates => dates } }
+    format.html  { render json: {:values => values,:dates => dates } }
   end
 end
 

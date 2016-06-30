@@ -24,6 +24,22 @@ app.factory('charts', ['$http',function($http){
     });
   };
 
+  o.getOrdersData = function(inicio,fin,type) {
+     var data = $.param({
+         inicio: inicio,
+         fin:fin,
+         type:type
+    });
+    var config = {
+        headers : {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    }
+    return $http.post('api/ordersdata.json', data, config).success(function(data){
+      return data;
+    });
+  };
+
   o.getTransacciones = function(fecha) {
      var data = $.param({
          fecha: fecha
@@ -42,8 +58,6 @@ app.factory('charts', ['$http',function($http){
 }]);
 
 app.controller("ChartCtrl",['$scope','charts','stores','products', function ($scope,charts,stores,products) {
-  /*$scope.labels = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
-  $scope.series = ['Series A', 'Series B'];*/
  $( "#tabs" ).tabs({
   activate: function( event, ui ) {
     if(event.currentTarget.innerHTML == 'Logistica')
@@ -102,18 +116,18 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
           datasets:[{
             data: values_stocks,
             backgroundColor: [
-                "#FF6384",
-                "#36A2EB",
-                "#FFCE56",
-                "#A3DE11",
-                "#532DD8"
+                "rgba(215, 40, 40, 0.5)",
+                "rgba(215, 182, 44, 0.5)",
+                "rgba(243, 117, 35, 0.5)",
+                "rgba(61, 162, 8, 0.5)",
+                "rgba(215, 44, 213, 0.5)"
             ],
             hoverBackgroundColor: [
-                "#FF6384",
-                "#36A2EB",
-                "#FFCE56",
-                "#A3DE11",
-                "#532DD8"
+                "rgba(215, 40, 40, 0.2)",
+                "rgba(215, 182, 44, 0.2)",
+                "rgba(243, 117, 35, 0.2)",
+                "rgba(61, 162, 8, 0.2)",
+                "rgba(215, 44, 213, 0.2)"
             ]
           }
           ]
@@ -133,12 +147,12 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
           datasets:[{
             data: central_arr,
             backgroundColor: [
-                "#FF6384",
-                "#36A2EB"
+                "rgba(255, 33, 5, 0.5)",
+                "rgba(26, 33, 78, 0.5)"
             ],
             hoverBackgroundColor: [
-                "#FF6384",
-                "#36A2EB"
+                "rgba(255, 33, 5, 0.2)",
+                "rgba(26, 33, 78, 0.2)"
             ]
           }
           ]
@@ -158,12 +172,12 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
           datasets:[{
             data: pulmon_arr,
             backgroundColor: [
-                "#FF6384",
-                "#36A2EB"
+                "rgba(28, 33, 55, 0.5)",
+                "rgba(128, 33, 155, 0.5)"
             ],
             hoverBackgroundColor: [
-                "#FF6384",
-                "#36A2EB"
+                "rgba(28, 33, 55, 0.2)",
+                "rgba(128, 33, 155, 0.2)"
             ]
           }
           ]
@@ -183,12 +197,12 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
           datasets:[{
             data: despacho_arr,
             backgroundColor: [
-                "#FF6384",
-                "#36A2EB"
+                "rgba(156, 255, 40, 0.5)",
+                "rgba(233, 88, 40, 0.5)"
             ],
             hoverBackgroundColor: [
-                "#FF6384",
-                "#36A2EB"
+                "rgba(156, 255, 40, 0.2)",
+                "rgba(233, 88, 40, 0.2)"
             ]
           }
           ]
@@ -208,12 +222,12 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
           datasets:[{
             data: recepcion_arr,
             backgroundColor: [
-                "#FF6384",
-                "#36A2EB"
+                "rgba(4, 255, 140, 0.5)",
+                "rgba(77, 88, 110, 0.5)"
             ],
             hoverBackgroundColor: [
-                "#FF6384",
-                "#36A2EB"
+                "rgba(4, 255, 140, 0.2)",
+                "rgba(77, 88, 110, 0.2)"
             ]
           }
           ]
@@ -230,58 +244,33 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
       charts.getStocks().then(function(response){
         console.log('stocks');
         console.log(response);
-        var result = response.data;
-        var labels_stocks = [];
-        var product_18 = [];
-        var product_24 = [];
-        var product_26 = [];
-        var product_37 = [];
-        //var product_37 = [];
-        for(var i = 0; i < result.length;i++)
-        {
-          if(labels_stocks.indexOf(result[i].date)==-1)
-          {
-            labels_stocks.push(result[i].date);
-          }
-          if(result[i].sku == '18')
-          {
-             product_18.push(result[i].qty);
-          }
-          if(result[i].sku == '24')
-          {
-            product_24.push(result[i].qty); 
-          }
-          if(result[i].sku == '26')
-          {
-            product_26.push(result[i].qty);
-          }
-          if(result[i].sku == '37')
-          {
-            product_37.push(result[i].qty);
-          }
-        }
-
+        var result = response.data.values;
+        var labels_stocks = response.data.labels;
+        var product_18    = result['18'];
+        var product_24    = result['24'];
+        var product_26    = result['26'];
+        var product_37    = result['37'];
         var ctx_stocks = document.getElementById("stocks").getContext("2d");
         var chart_stocks = new Chart(ctx_stocks, {
           type: 'bar',
           data: {
             labels: labels_stocks,
               datasets: [{
-                  label: '18',
+                  label: 'Pastel (18)',
                   data: product_18,
                   backgroundColor: 'rgba(255, 99, 132, 0.5)'
               },{
-                  label: '24',
+                  label: 'Tela de seda (24)',
                   data: product_24,
                   backgroundColor: 'rgba(255, 99, 0, 0.5)'
               },
               {
-                  label: '26',
+                  label: 'Sal (24)',
                   data: product_26,
                   backgroundColor: 'rgba(0, 99, 111, 0.5)'
               },
               {
-                  label: '37',
+                  label: 'Lino (37)',
                   data: product_37,
                   backgroundColor: 'rgba(45, 0, 111, 0.5)'
               }]
@@ -303,8 +292,6 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
               }
           }
         });       
-
-
       });
 
       products.getAll().then(function(response){
@@ -425,9 +412,109 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
       }
     });
  }
-  /*charts.getTransacciones('0').then(function(response){
+
+$( "#from" ).datepicker({
+      dateFormat: "yy-mm-dd",
+      minDate: -90, 
+      maxDate: "+0D",
+      onClose: function( selectedDate ) {
+        $( "#to" ).datepicker( "option", "minDate", selectedDate );
+      }
+    });
+    $( "#to" ).datepicker({
+      dateFormat: "yy-mm-dd",
+      minDate: -90, 
+      maxDate: "+0D",
+      onClose: function( selectedDate ) {
+        $( "#from" ).datepicker( "option", "maxDate", selectedDate );
+      }
+  });
+
+    $('#ver').on('click',function(){
+        var inicio = $('#from').val();
+        var fin = $('#to').val();
+        charts.getOrdersData(inicio,fin).then(function(response){
+          $scope.facturacion(response);
+        });
+
+    });
+
+    $('#ver_1').on('click',function(){
+        var inicio = $('#from').val();
+        var fin = $('#to').val();
+        charts.getOrdersData(inicio,fin,1).then(function(response){
+          $scope.facturacion(response);
+        });
+
+    });
+
+    $('#ver_2').on('click',function(){
+        var inicio = $('#from').val();
+        var fin = $('#to').val();
+        charts.getOrdersData(inicio,fin,2).then(function(response){
+          $scope.facturacion(response);
+        });
+
+    });
+
+    $('#ver_3').on('click',function(){
+        var inicio = $('#from').val();
+        var fin = $('#to').val();
+        charts.getOrdersData(inicio,fin,3).then(function(response){
+          $scope.facturacion(response);
+        });
+
+    });
+
+  $scope.facturacion = function(response)
+  {
+    console.log(response);
+    var ctx_facturacion = document.getElementById("facturacion").getContext("2d");;
+    var chart_facturacion = new Chart(ctx_facturacion, {
+      type: 'line',
+      data: {
+        labels: response.data.dates,
+          datasets:[{
+          label: 'Monto',
+          data: response.data.values,
+          backgroundColor: 'rgba(255, 99, 132, 0.2)'
+        }] 
+      },
+      options:
+      {
+        legend:{
+            display:true
+         },
+         scales: {
+              yAxes: [{
+                  ticks: {
+                      callback: function(value, index, values) {
+                          return value;
+                      }
+                  }
+              }],
+              xAxes: [{
+                type: 'time',
+                time: {
+                    displayFormats: {
+                        quarter: 'MMM YYYY'
+                    }
+                }
+            }]
+          }
+      }
+    });
+
+  }  
+
+
+  charts.getOrdersData(0,0,0).then(function(response){
+    $scope.facturacion(response);
+  });
+
+  charts.getTransacciones('0').then(function(response){
     $scope.transacciones(response);
-  });*/
+  });
 
   $("#general").on('click',function(){
       charts.getTransacciones('0').then(function(response){
@@ -459,7 +546,7 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
             datasets: [{
                 label: 'Saldos',
                 data: saldos,
-                backgroundColor: 'rgba(255, 99, 132, 0.2)'
+                backgroundColor: 'rgba(255, 99, 132, 0.5)'
             }]
         },
         options:
@@ -515,9 +602,9 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
                 "#FFCE56"
             ],
             hoverBackgroundColor: [
-                "#FF6384",
-                "#36A2EB",
-                "#FFCE56"
+                "#EE5522",
+                "#DD2166",
+                "#CC3422"
             ]
           }]
         },
@@ -545,9 +632,9 @@ app.controller("ChartCtrl",['$scope','charts','stores','products', function ($sc
                 "#FFCE56"
             ],
             hoverBackgroundColor: [
-                "#FF6384",
-                "#36A2EB",
-                "#FFCE56"
+                "#EE5522",
+                "#DD2166",
+                "#CC3422"
             ] 
           }]
         },

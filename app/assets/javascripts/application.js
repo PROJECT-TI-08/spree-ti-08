@@ -20,6 +20,7 @@
 //= require angular-bootstrap
 //= require bootstrap-table
 //= require angular-loading-bar
+//= require moment
 //= require Chart.js/dist/Chart
 //= require angular-chart.js/dist/angular-chart
 //= require_tree .
