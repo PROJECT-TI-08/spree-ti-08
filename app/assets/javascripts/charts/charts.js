@@ -476,7 +476,8 @@ $( "#from" ).datepicker({
 
   $scope.facturacion = function(response)
   {
-    console.log(response);
+    $('#special_2').html('');
+    $('#special_2').html("<canvas id='transacciones'></canvas>");
     var ctx_facturacion = document.getElementById("facturacion").getContext("2d");;
     var chart_facturacion = new Chart(ctx_facturacion, {
       type: 'line',
@@ -500,15 +501,15 @@ $( "#from" ).datepicker({
                           return value;
                       }
                   }
-              }],
-              xAxes: [{
+              }]
+              /*xAxes: [{
                 type: 'time',
                 time: {
                     displayFormats: {
                         quarter: 'MMM YYYY'
                     }
                 }
-            }]
+            }]*/
           }
       }
     });
