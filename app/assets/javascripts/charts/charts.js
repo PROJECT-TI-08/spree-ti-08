@@ -433,7 +433,9 @@ $( "#from" ).datepicker({
     $('#ver').on('click',function(){
         var inicio = $('#from').val();
         var fin = $('#to').val();
-        charts.getOrdersData(inicio,fin).then(function(response){
+        if(inicio == ''){ inicio = 0; }
+        if(fin == ''){ fin = 0; }
+        charts.getOrdersData(inicio,fin,0).then(function(response){
           $scope.facturacion(response);
         });
 
@@ -442,6 +444,8 @@ $( "#from" ).datepicker({
     $('#ver_1').on('click',function(){
         var inicio = $('#from').val();
         var fin = $('#to').val();
+        if(inicio == ''){ inicio = 0; }
+        if(fin == ''){ fin = 0; }
         charts.getOrdersData(inicio,fin,1).then(function(response){
           $scope.facturacion(response);
         });
@@ -451,6 +455,8 @@ $( "#from" ).datepicker({
     $('#ver_2').on('click',function(){
         var inicio = $('#from').val();
         var fin = $('#to').val();
+        if(inicio == ''){ inicio = 0; }
+        if(fin == ''){ fin = 0; }
         charts.getOrdersData(inicio,fin,2).then(function(response){
           $scope.facturacion(response);
         });
@@ -460,6 +466,8 @@ $( "#from" ).datepicker({
     $('#ver_3').on('click',function(){
         var inicio = $('#from').val();
         var fin = $('#to').val();
+        if(inicio == ''){ inicio = 0; }
+        if(fin == ''){ fin = 0; }
         charts.getOrdersData(inicio,fin,3).then(function(response){
           $scope.facturacion(response);
         });
@@ -506,8 +514,6 @@ $( "#from" ).datepicker({
     });
 
   }  
-
-
   charts.getOrdersData(0,0,0).then(function(response){
     $scope.facturacion(response);
   });
